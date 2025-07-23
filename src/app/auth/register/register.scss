@@ -1,0 +1,105 @@
+.register-container {
+  max-width: 420px;
+  margin: auto;
+  padding: 3rem 2rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  font-family: 'Inter', sans-serif;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    color: #2c3e50;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+
+    .input-group {
+      flex: 1;
+    }
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.2rem;
+
+    label {
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+      color: #34495e;
+    }
+
+    input {
+      padding: 0.7rem;
+      border: 1px solid #dcdfe3;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border 0.2s ease;
+
+      &:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+      }
+    }
+  }
+
+  .terms {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+
+    input {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .error {
+    color: #e74c3c;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  button {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background-color: #2980b9;
+    }
+
+    &:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+  }
+
+  .login-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+
+    a {
+      color: #3498db;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

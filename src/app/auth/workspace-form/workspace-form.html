@@ -1,0 +1,20 @@
+<div class="form-container">
+  <h2>{{ isEditing ? 'Editar' : 'Crear' }} Workspace</h2>
+
+  <form (ngSubmit)="saveWorkspace()">
+    <label for="name">Nombre del workspace</label>
+    <input id="name" [(ngModel)]="name" name="name" required />
+    <div *ngIf="error && !name" class="error">
+      El nombre del workspace es obligatorio.
+    </div>
+
+    <label for="description">Descripción</label>
+    <textarea id="description" [(ngModel)]="description" name="description"></textarea>
+
+    <div *ngIf="error && name" class="error">{{ error }}</div>
+
+    <button type="submit" [disabled]="loading">
+      {{ loading ? 'Guardando...' : 'Guardar' }}
+    </button>
+  </form>
+</div>

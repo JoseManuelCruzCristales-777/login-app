@@ -1,0 +1,40 @@
+.form-container {
+  max-width: 500px;
+  margin: auto;
+  padding: 2rem;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+
+  h2 {
+    margin-bottom: 1rem;
+  }
+
+  label {
+    display: block;
+    margin: 1rem 0 0.3rem;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .error {
+    margin-top: 1rem;
+    color: red;
+  }
+}

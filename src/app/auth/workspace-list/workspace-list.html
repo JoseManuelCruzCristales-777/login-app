@@ -1,0 +1,54 @@
+<div class="workspace-page">
+  <header class="navbar">
+    <div class="navbar-left">
+      <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
+      <span class="app-name">KanbanFlow</span>
+    </div>
+    <div class="navbar-center">
+      <input type="text" placeholder="Buscar workspaces o tareas..." class="search-bar" />
+    </div>
+    <div class="navbar-right">
+      <button class="notification-btn">🔔</button>
+      <div class="user-menu">
+        <img [src]="user?.avatar || 'assets/avatar.png'" alt="Usuario" class="avatar" />
+        <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <div class="dropdown" [class.visible]="showDropdown">
+          <a href="#">Mi Perfil</a>
+          <a href="#">Configuración</a>
+          <a href="#" (click)="onLogout(); $event.preventDefault()">Cerrar Sesión</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="content-header">
+      <h2>Mis Espacios de Trabajo</h2>
+      <button class="create-btn" (click)="createWorkspace()">+ Crear nuevo Workspace</button>
+    </div>
+
+    <div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="!error && workspaces.length === 0" class="empty-list">
+      No tienes workspaces aún.
+    </div>
+
+    <div class="workspace-grid" *ngIf="workspaces.length > 0">
+      <div
+        class="workspace-card"
+        *ngFor="let workspace of workspaces"
+        (click)="workspace.id && goToWorkspace(workspace.id)">
+        <div class="card-header">
+          <h3>{{ workspace.name }}</h3>
+          <span class="badge">ID: {{ workspace.id }}</span>
+        </div>
+        <p class="description">{{ workspace.description }}</p>
+        <div class="card-footer">
+          <span class="meta">
+            👥 Creador: {{ getCreatorName(workspace.created_by) }}
+          </span>
+          <span class="meta">📅 Última actividad: Hace poco</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
