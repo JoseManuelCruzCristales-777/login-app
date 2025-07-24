@@ -1,0 +1,73 @@
+<div class="home-selector-page">
+  <header class="navbar">
+    <div class="navbar-left">
+      <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
+      <span class="app-name">KanbanFlow</span>
+    </div>
+    <div class="navbar-right">
+      <div class="user-menu">
+        <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
+        <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <button class="logout-btn" (click)="onLogout()">
+          🚪 Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="welcome-section">
+      <h1 *ngIf="user">¡Bienvenido, {{ user.first_name }}!</h1>
+      <h1 *ngIf="!user">¡Bienvenido a KanbanFlow!</h1>
+      <p class="subtitle">¿Qué te gustaría hacer hoy?</p>
+    </div>
+
+    <div class="options-container">
+      <div class="option-card dashboard-card" (click)="goToDashboard()">
+        <div class="option-icon">
+          📊
+        </div>
+        <h3>Mi Dashboard Personal</h3>
+        <p>Ve y gestiona tus tareas asignadas. Actualiza el progreso de tus actividades y mantén un seguimiento de tu trabajo personal.</p>
+        <div class="features">
+          <span class="feature">✅ Mis tareas asignadas</span>
+          <span class="feature">📈 Actualizar progreso</span>
+          <span class="feature">👥 Ver mis equipos</span>
+          <span class="feature">📋 Estadísticas personales</span>
+        </div>
+        <button class="action-btn primary">
+          🚀 Ir a Mi Dashboard
+        </button>
+      </div>
+
+      <div class="option-card workspace-card" (click)="goToWorkspaces()">
+        <div class="option-icon">
+          🏢
+        </div>
+        <h3>Gestión de Workspaces</h3>
+        <p>Administra workspaces completos, crea y gestiona equipos, asigna tareas y supervisa proyectos desde una vista global.</p>
+        <div class="features">
+          <span class="feature">🏗️ Crear workspaces</span>
+          <span class="feature">👥 Gestionar equipos</span>
+          <span class="feature">📝 Asignar tareas</span>
+          <span class="feature">📊 Vista completa de proyectos</span>
+        </div>
+        <button class="action-btn secondary">
+          🔧 Gestionar Workspaces
+        </button>
+      </div>
+    </div>
+
+    <div class="quick-access">
+      <h3>Accesos Rápidos</h3>
+      <div class="quick-buttons">
+        <button class="quick-btn" (click)="goToDashboard()">
+          📝 Mis Tareas
+        </button>
+        <button class="quick-btn" (click)="goToWorkspaces()">
+          📁 Mis Workspaces
+        </button>
+      </div>
+    </div>
+  </main>
+</div>

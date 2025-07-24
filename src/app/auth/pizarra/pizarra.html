@@ -1,0 +1,424 @@
+<div class="pizarra-page">
+  <header class="navbar">
+    <div class="navbar-left">
+      <button class="back-btn" (click)="goBack()">← Volver</button>
+      <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
+      <span class="app-name">KanbanFlow</span>
+      <span class="workspace-name" *ngIf="workspace">- {{ workspace.name }}</span>
+    </div>
+    <div class="navbar-center">
+      <input type="text" placeholder="Buscar tareas..." class="search-bar" />
+    </div>
+    <div class="navbar-right">
+      <button class="notification-btn">🔔</button>
+      <div class="user-menu">
+        <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
+        <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <div class="dropdown" [class.visible]="showDropdown">
+          <a href="#">Mi Perfil</a>
+          <a href="#">Configuración</a>
+          <a href="#" (click)="onLogout(); $event.preventDefault()">Cerrar Sesión</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="content-header">
+      <h2 *ngIf="workspace">{{ workspace.name }}</h2>
+      <p class="workspace-description" *ngIf="workspace">{{ workspace.description }}</p>
+      <div class="loading-error">
+        <div *ngIf="loading" class="loading">Cargando tareas...</div>
+        <div *ngIf="error" class="error">{{ error }}</div>
+      </div>
+      <div class="action-buttons">
+        <button class="create-team-btn" (click)="openTeamModal()">+ Crear Equipo</button>
+        <button 
+          class="create-task-btn" 
+          (click)="openTaskModal()"
+          [disabled]="!canCreateTasks">
+          + Agregar Tarea
+        </button>
+      </div>
+    </div>
+
+    <!-- Sección de equipos -->
+    <div class="teams-section" *ngIf="teams.length > 0">
+      <h3>Equipos en este Workspace</h3>
+      <div class="teams-grid">
+        <div class="team-card" *ngFor="let team of teams">
+          <div class="team-header">
+            <h4>{{ team.name }}</h4>
+            <div class="team-actions">
+              <button 
+                *ngIf="isUserLeaderOfTeam(team)"
+                class="manage-members-btn"
+                (click)="openMembersModal(team)">
+                👥 Gestionar
+              </button>
+              <button 
+                *ngIf="isUserLeaderOfTeam(team)"
+                class="delete-team-btn"
+                (click)="deleteTeam(team, $event)">
+                🗑️
+              </button>
+            </div>
+          </div>
+          <div class="team-members">
+            <span class="member" *ngFor="let user of team.users">
+              {{ user.first_name }} {{ user.last_name }}
+              <span class="role" [class]="user.pivot.role">{{ user.pivot.role === 'leader' ? '👑' : '👤' }}</span>
+            </span>
+            <span *ngIf="!team.users || team.users.length === 0" class="no-members">
+              Sin miembros
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="teams.length === 0 && !loading" class="no-teams-message">
+      <p>No hay equipos en este workspace. Crea un equipo para comenzar a gestionar tareas.</p>
+    </div>
+
+    <div class="kanban-board">
+      <!-- Columna: Por Hacer -->
+      <div class="column">
+        <div class="column-header todo-header">
+          <h3>📝 Por Hacer</h3>
+          <span class="task-count">{{ getTasksByStatus('todo').length }}</span>
+        </div>
+        <div class="task-list">
+          <div 
+            class="task-card" 
+            *ngFor="let task of getTasksByStatus('todo')"
+            (click)="openTaskModal(task)">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+              <span class="progress-badge" [class]="getPriorityClass(task.progress)">
+                {{ getProgressText(task.progress) }}
+              </span>
+            </div>
+            <p class="task-description">{{ task.description || 'Sin descripción' }}</p>
+            <div class="task-meta">
+              <span class="assigned-to" *ngIf="task.assigned_to">
+                👤 {{ getAssignedUserName(task) }}
+              </span>
+              <span class="created-by">
+                ✏️ {{ getCreatorName(task) }}
+              </span>
+            </div>
+            <div class="task-actions">
+              <button 
+                class="move-btn"
+                (click)="updateTaskStatus(task, 'in-progress'); $event.stopPropagation()">
+                ➡️ En Progreso
+              </button>
+              <button 
+                class="delete-btn"
+                (click)="deleteTask(task); $event.stopPropagation()">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna: En Progreso -->
+      <div class="column">
+        <div class="column-header progress-header">
+          <h3>⚡ En Progreso</h3>
+          <span class="task-count">{{ getTasksByStatus('in-progress').length }}</span>
+        </div>
+        <div class="task-list">
+          <div 
+            class="task-card" 
+            *ngFor="let task of getTasksByStatus('in-progress')"
+            (click)="openTaskModal(task)">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+              <span class="progress-badge" [class]="getPriorityClass(task.progress)">
+                {{ getProgressText(task.progress) }}
+              </span>
+            </div>
+            <p class="task-description">{{ task.description || 'Sin descripción' }}</p>
+            <div class="task-meta">
+              <span class="assigned-to" *ngIf="task.assigned_to">
+                👤 {{ getAssignedUserName(task) }}
+              </span>
+              <span class="created-by">
+                ✏️ {{ getCreatorName(task) }}
+              </span>
+            </div>
+            <div class="task-actions">
+              <button 
+                class="move-btn"
+                (click)="updateTaskStatus(task, 'todo'); $event.stopPropagation()">
+                ⬅️ Por Hacer
+              </button>
+              <button 
+                class="move-btn"
+                (click)="updateTaskStatus(task, 'done'); $event.stopPropagation()">
+                ➡️ Completado
+              </button>
+              <button 
+                class="delete-btn"
+                (click)="deleteTask(task); $event.stopPropagation()">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna: Completado -->
+      <div class="column">
+        <div class="column-header done-header">
+          <h3>✅ Completado</h3>
+          <span class="task-count">{{ getTasksByStatus('done').length }}</span>
+        </div>
+        <div class="task-list">
+          <div 
+            class="task-card completed" 
+            *ngFor="let task of getTasksByStatus('done')"
+            (click)="openTaskModal(task)">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+              <span class="progress-badge" [class]="getPriorityClass(task.progress)">
+                {{ getProgressText(task.progress) }}
+              </span>
+            </div>
+            <p class="task-description">{{ task.description || 'Sin descripción' }}</p>
+            <div class="task-meta">
+              <span class="assigned-to" *ngIf="task.assigned_to">
+                👤 {{ getAssignedUserName(task) }}
+              </span>
+              <span class="created-by">
+                ✏️ {{ getCreatorName(task) }}
+              </span>
+            </div>
+            <div class="task-actions">
+              <button 
+                class="move-btn"
+                (click)="updateTaskStatus(task, 'in-progress'); $event.stopPropagation()">
+                ⬅️ En Progreso
+              </button>
+              <button 
+                class="delete-btn"
+                (click)="deleteTask(task); $event.stopPropagation()">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal para crear/editar tarea -->
+  <div class="modal-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingTask ? 'Editar Tarea' : 'Nueva Tarea' }}</h3>
+        <button class="close-btn" (click)="closeTaskModal()">×</button>
+      </div>
+      <form (ngSubmit)="saveTask()" class="task-form">
+        <div class="form-group">
+          <label for="title">Título *</label>
+          <input 
+            type="text" 
+            id="title"
+            [(ngModel)]="newTask.title" 
+            name="title"
+            required
+            placeholder="Ingresa el título de la tarea">
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea 
+            id="description"
+            [(ngModel)]="newTask.description" 
+            name="description"
+            rows="3"
+            placeholder="Describe la tarea (opcional)">
+          </textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="progress">Progreso (%)</label>
+            <input 
+              type="range" 
+              id="progress" 
+              [(ngModel)]="newTask.progress" 
+              name="progress"
+              min="0" 
+              max="100"
+              class="progress-slider">
+            <span class="progress-value">{{ newTask.progress || 0 }}%</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="is_done">Estado</label>
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                id="is_done" 
+                [(ngModel)]="newTask.is_done" 
+                name="is_done">
+              Tarea completada
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="team_id">Equipo *</label>
+          <select 
+            id="team_id" 
+            [(ngModel)]="newTask.team_id" 
+            name="team_id"
+            required>
+            <option value="">Selecciona un equipo</option>
+            <option *ngFor="let team of getUserTeams()" [value]="team.id">
+              {{ team.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="newTask.team_id">
+          <label for="assigned_to">Asignar a *</label>
+          <select 
+            id="assigned_to" 
+            [(ngModel)]="newTask.assigned_to" 
+            name="assigned_to"
+            required>
+            <option value="">Selecciona un usuario</option>
+            <option *ngFor="let user of getTeamUsers(newTask.team_id!)" [value]="user.id">
+              {{ user.first_name }} {{ user.last_name }} ({{ user.pivot.role }})
+            </option>
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeTaskModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="save-btn" [disabled]="!newTask.title?.trim() || !newTask.team_id || !newTask.assigned_to">
+            {{ editingTask ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para crear equipo -->
+  <div class="modal-overlay" *ngIf="showTeamModal" (click)="closeTeamModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Crear Nuevo Equipo</h3>
+        <button class="close-btn" (click)="closeTeamModal()">×</button>
+      </div>
+      <form (ngSubmit)="saveTeam()" class="team-form">
+        <div class="form-group">
+          <label for="team-name">Nombre del Equipo *</label>
+          <input 
+            type="text" 
+            id="team-name"
+            [(ngModel)]="newTeam.name" 
+            name="teamName"
+            required
+            placeholder="Ingresa el nombre del equipo">
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeTeamModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="save-btn" [disabled]="!newTeam.name.trim()">
+            Crear Equipo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para gestionar miembros del equipo -->
+<div class="modal-overlay" *ngIf="showMembersModal" (click)="closeMembersModal()">
+  <div class="modal-content members-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Gestionar Miembros - {{ selectedTeam?.name }}</h3>
+      <button class="close-btn" (click)="closeMembersModal()">×</button>
+    </div>
+    
+    <!-- Lista de miembros actuales -->
+    <div class="current-members" *ngIf="selectedTeam && selectedTeam.users && selectedTeam.users.length > 0">
+      <h4>Miembros Actuales</h4>
+      <div class="members-list">
+        <div class="member-item" *ngFor="let user of selectedTeam!.users">
+          <div class="member-info">
+            <span class="member-name">{{ user.first_name }} {{ user.last_name }}</span>
+            <span class="member-role" [class]="user.pivot.role">
+              {{ user.pivot.role === 'leader' ? '👑 Líder' : '👤 Miembro' }}
+            </span>
+          </div>
+          <button 
+            *ngIf="user.pivot.role !== 'leader'" 
+            class="remove-member-btn"
+            (click)="removeMemberFromTeam(user.id)">
+            🗑️ Remover
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agregar nuevo miembro -->
+    <div class="add-member-section">
+      <h4>Agregar Nuevo Miembro</h4>
+      <form (ngSubmit)="addMemberToTeam()" class="add-member-form">
+        <div class="form-group">
+          <label for="user-select">Usuario *</label>
+          <select 
+            id="user-select"
+            [(ngModel)]="newMember.user_id" 
+            name="userId"
+            required
+            [disabled]="loadingUsers">
+            <option value="0">{{ loadingUsers ? 'Cargando usuarios...' : 'Selecciona un usuario' }}</option>
+            <option *ngFor="let user of availableUsersForTeam" [value]="user.id">
+              {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
+            </option>
+          </select>
+          <small *ngIf="!loadingUsers && availableUsersForTeam.length === 0" class="no-users-message">
+            No hay usuarios disponibles para agregar al equipo
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label for="role-select">Rol *</label>
+          <select 
+            id="role-select"
+            [(ngModel)]="newMember.role" 
+            name="role"
+            required>
+            <option value="member">👤 Miembro</option>
+            <option value="leader">👑 Líder</option>
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeMembersModal()">
+            Cerrar
+          </button>
+          <button 
+            type="submit" 
+            class="save-btn" 
+            [disabled]="!newMember.user_id || loadingUsers || availableUsersForTeam.length === 0">
+            {{ loadingUsers ? 'Cargando...' : 'Agregar Miembro' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -3,10 +3,31 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Workspace {
-  id?: number;
+  id: number;
   name: string;
   description: string;
-  created_by?: number | { first_name: string; last_name: string }; // Soporta ambos casos
+  created_by: number;
+  created_at?: string;
+  updated_at?: string;
+  teams?: Team[];
+  tasks?: any[];
+}
+
+export interface Team {
+  id: number;
+  name: string;
+  workspace_id: number;
+  users?: TeamUser[];
+}
+
+export interface TeamUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  pivot: {
+    role: 'leader' | 'member';
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,14 +43,14 @@ export class WorkspaceService {
     });
   }
 
-  createWorkspace(data: any): Observable<any> {
+  createWorkspace(data: { name: string; description?: string }): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.post(`${this.apiUrl}/workspaces`, data, { headers });
   }
 
-  getWorkspaces(): Observable<any> {
+  getWorkspaces(): Observable<Workspace[]> {
     const headers = this.getAuthHeaders();
-    return this.http.get(`${this.apiUrl}/workspaces`, { headers });
+    return this.http.get<Workspace[]>(`${this.apiUrl}/workspaces`, { headers });
   }
 
   getWorkspace(id: number): Observable<Workspace> {
@@ -37,8 +58,13 @@ export class WorkspaceService {
     return this.http.get<Workspace>(`${this.apiUrl}/workspaces/${id}`, { headers });
   }
 
-  updateWorkspace(id: number, workspace: Workspace): Observable<any> {
+  updateWorkspace(id: number, data: { name: string; description?: string }): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.put(`${this.apiUrl}/workspaces/${id}`, workspace, { headers });
+    return this.http.put(`${this.apiUrl}/workspaces/${id}`, data, { headers });
+  }
+
+  deleteWorkspace(id: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/workspaces/${id}`, { headers });
   }
 }

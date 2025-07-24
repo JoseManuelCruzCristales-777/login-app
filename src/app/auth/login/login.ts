@@ -25,26 +25,26 @@ export class LoginComponent implements OnInit {
     });
   }
 
-
-onSubmit() {
-  if (this.loginForm.valid) {
-    this.auth.login(this.loginForm.value).subscribe({
-      next: (res) => {
-        if (res.token) {
-          this.auth.setToken(res.token);
-          alert('¡Login exitoso!');
-          this.router.navigate(['/workspace-list']);
-        } else {
-          alert('Respuesta inesperada del servidor');
+  onSubmit() {
+    if (this.loginForm.valid) {
+      this.auth.login(this.loginForm.value).subscribe({
+        next: (res) => {
+          if (res.token) {
+            this.auth.setToken(res.token);
+            alert('¡Login exitoso!');
+            this.router.navigate(['/home']);
+          } else {
+            alert('Respuesta inesperada del servidor');
+          }
+        },
+        error: (err) => {
+          alert('Credenciales incorrectas o error de servidor');
         }
-      },
-      error: (err) => {
-        alert('Credenciales incorrectas o error de servidor');
-      }
-    });
-    this.loginForm.markAllAsTouched();
+      });
+      this.loginForm.markAllAsTouched();
+    }
   }
-}
+
   get email() {
     return this.loginForm.get('email');
   }

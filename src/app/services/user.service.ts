@@ -24,4 +24,9 @@ export class UserService {
     const headers = this.getAuthHeaders();
     return this.http.put(`${this.apiUrl}/user`, data, { headers });
   }
+
+  getAllUsers(): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.apiUrl}/users`, { headers });
+  }
 }

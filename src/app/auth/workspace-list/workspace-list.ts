@@ -26,15 +26,23 @@ export class WorkspaceListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadWorkspaces();
+    this.loadUser();
+  }
+
+  loadWorkspaces(): void {
     this.workspaceService.getWorkspaces().subscribe({
-      next: (data) => {
-        // Si el backend responde { data: [...] }
-        this.workspaces = Array.isArray(data) ? data : (data.data || []);
+      next: (workspaces) => {
+        this.workspaces = workspaces;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error al cargar workspaces:', error);
         this.error = 'Error al cargar los workspaces.';
       }
     });
+  }
+
+  loadUser(): void {
     this.userService.getUser().subscribe({
       next: (user) => this.user = user,
       error: () => this.user = null
@@ -54,10 +62,52 @@ export class WorkspaceListComponent implements OnInit {
     if (typeof created_by === 'object' && created_by.first_name) {
       return `${created_by.first_name} ${created_by.last_name}`;
     }
-    return created_by.toString();
+    return `Usuario ${created_by}`;
+  }
+
+  deleteWorkspace(workspace: Workspace, event: Event): void {
+    event.stopPropagation();
+    if (confirm(`¿Estás seguro de que quieres eliminar el workspace "${workspace.name}"?`)) {
+      this.workspaceService.deleteWorkspace(workspace.id).subscribe({
+        next: () => {
+          this.loadWorkspaces(); // Recargar la lista
+        },
+        error: (error) => {
+          console.error('Error al eliminar workspace:', error);
+          this.error = 'Error al eliminar el workspace';
+        }
+      });
+    }
   }
 
   onLogout() {
     this.auth.logout();
+  }
+
+  // Navegar a home selector
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  // Navegar a dashboard
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
+  }
+
+  // Refrescar datos
+  refresh() {
+    this.loadWorkspaces();
+    this.loadUser();
+  }
+
+  // Métodos auxiliares para las estadísticas
+  getCreatedByMeCount(): number {
+    if (!this.user) return 0;
+    return this.workspaces.filter(workspace => workspace.created_by === this.user.id).length;
+  }
+
+  getSharedWithMeCount(): number {
+    if (!this.user) return 0;
+    return this.workspaces.filter(workspace => workspace.created_by !== this.user.id).length;
   }
 }

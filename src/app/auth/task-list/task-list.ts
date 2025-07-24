@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Task } from '../../services/task';
+import { TaskService } from '../../services/task';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -14,13 +14,14 @@ export class TaskListComponent implements OnInit {
   tasks: any[] = [];
   error = '';
 
-  constructor(private taskService: Task, private router: Router) {}
+  constructor(private taskService: TaskService, private router: Router) {}
 
   ngOnInit(): void {
-    // Aquí deberías tener un método en el servicio para obtener tareas por teamId
-    // Por simplicidad, asume que getTasks(teamId) existe
-    this.taskService.getTasks(this.teamId).subscribe({
-      next: (tasks) => this.tasks = tasks,
+    this.taskService.getTasks().subscribe({
+      next: (tasks: any) => {
+        // Filtrar tareas por teamId si es necesario
+        this.tasks = this.teamId ? tasks.filter((task: any) => task.team_id === this.teamId) : tasks;
+      },
       error: () => this.error = 'Error al cargar las tareas.'
     });
   }

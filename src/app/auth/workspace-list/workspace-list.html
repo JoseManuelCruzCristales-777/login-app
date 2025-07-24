@@ -1,20 +1,22 @@
 <div class="workspace-page">
   <header class="navbar">
     <div class="navbar-left">
+      <button class="back-btn" (click)="goToHome()">← Inicio</button>
       <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
       <span class="app-name">KanbanFlow</span>
+      <span class="section-name">- Gestión de Workspaces</span>
     </div>
     <div class="navbar-center">
-      <input type="text" placeholder="Buscar workspaces o tareas..." class="search-bar" />
+      <input type="text" placeholder="Buscar workspaces..." class="search-bar" />
     </div>
     <div class="navbar-right">
       <button class="notification-btn">🔔</button>
       <div class="user-menu">
-        <img [src]="user?.avatar || 'assets/avatar.png'" alt="Usuario" class="avatar" />
+        <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
         <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
-        <div class="dropdown" [class.visible]="showDropdown">
+        <div class="dropdown">
           <a href="#">Mi Perfil</a>
-          <a href="#">Configuración</a>
+          <a href="#" (click)="goToDashboard(); $event.preventDefault()">Mi Dashboard</a>
           <a href="#" (click)="onLogout(); $event.preventDefault()">Cerrar Sesión</a>
         </div>
       </div>
@@ -23,30 +25,80 @@
 
   <main class="main-content">
     <div class="content-header">
-      <h2>Mis Espacios de Trabajo</h2>
-      <button class="create-btn" (click)="createWorkspace()">+ Crear nuevo Workspace</button>
+      <h2>Gestión de Workspaces</h2>
+      <p class="workspace-description">Crea y administra tus espacios de trabajo, equipos y proyectos</p>
+      
+      <div class="action-buttons">
+        <button class="refresh-btn" (click)="refresh()">🔄 Actualizar</button>
+        <button class="dashboard-btn" (click)="goToDashboard()">📊 Mi Dashboard</button>
+        <button class="create-btn" (click)="createWorkspace()">+ Crear Workspace</button>
+      </div>
     </div>
 
-    <div *ngIf="error" class="error">{{ error }}</div>
-    <div *ngIf="!error && workspaces.length === 0" class="empty-list">
-      No tienes workspaces aún.
+    <!-- Estadísticas rápidas -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-number">{{ workspaces.length }}</div>
+        <div class="stat-label">Total Workspaces</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ getCreatedByMeCount() }}</div>
+        <div class="stat-label">Creados por mí</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ getSharedWithMeCount() }}</div>
+        <div class="stat-label">Compartidos</div>
+      </div>
     </div>
 
-    <div class="workspace-grid" *ngIf="workspaces.length > 0">
-      <div
-        class="workspace-card"
-        *ngFor="let workspace of workspaces"
-        (click)="workspace.id && goToWorkspace(workspace.id)">
-        <div class="card-header">
-          <h3>{{ workspace.name }}</h3>
-          <span class="badge">ID: {{ workspace.id }}</span>
-        </div>
-        <p class="description">{{ workspace.description }}</p>
-        <div class="card-footer">
-          <span class="meta">
-            👥 Creador: {{ getCreatorName(workspace.created_by) }}
-          </span>
-          <span class="meta">📅 Última actividad: Hace poco</span>
+    <div class="loading-error">
+      <div *ngIf="error" class="error">{{ error }}</div>
+    </div>
+
+    <div *ngIf="!error && workspaces.length === 0" class="no-workspaces-message">
+      <p>No tienes workspaces aún. Crea tu primer workspace para comenzar a gestionar proyectos.</p>
+    </div>
+
+    <div class="workspaces-section" *ngIf="workspaces.length > 0">
+      <div class="workspaces-grid">
+        <div
+          class="workspace-card"
+          *ngFor="let workspace of workspaces"
+          (click)="workspace.id && goToWorkspace(workspace.id)">
+          
+          <div class="workspace-header">
+            <h4>{{ workspace.name }}</h4>
+            <div class="workspace-actions">
+              <span class="workspace-badge">ID: {{ workspace.id }}</span>
+              <button 
+                class="delete-btn" 
+                (click)="deleteWorkspace(workspace, $event)"
+                title="Eliminar workspace">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <p class="workspace-description">{{ workspace.description || 'Sin descripción' }}</p>
+
+          <div class="workspace-meta">
+            <div class="creator-info">
+              <span class="created-by">
+                ✏️ {{ getCreatorName(workspace.created_by) }}
+              </span>
+            </div>
+            <div class="workspace-dates" *ngIf="workspace.created_at">
+              <small>Creado: {{ workspace.created_at | date:'short' }}</small>
+            </div>
+          </div>
+
+          <div class="workspace-actions-bottom">
+            <button 
+              class="enter-btn"
+              (click)="goToWorkspace(workspace.id); $event.stopPropagation()">
+              🚀 Entrar al Workspace
+            </button>
+          </div>
         </div>
       </div>
     </div>

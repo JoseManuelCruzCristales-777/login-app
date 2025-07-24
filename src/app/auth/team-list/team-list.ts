@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Team } from '../../services/team';
+import { TeamService } from '../../services/team';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -15,11 +15,14 @@ export class TeamListComponent implements OnInit {
   teams: any[] = [];
   error = '';
 
-  constructor(private teamService: Team, private router: Router) {}
+  constructor(private teamService: TeamService, private router: Router) {}
 
   ngOnInit(): void {
-    this.teamService.getTeams(this.workspaceId).subscribe({
-      next: (teams) => this.teams = teams,
+    this.teamService.getTeams().subscribe({
+      next: (teams: any) => {
+        // Filtrar equipos por workspaceId si es necesario
+        this.teams = this.workspaceId ? teams.filter((team: any) => team.workspace_id === this.workspaceId) : teams;
+      },
       error: () => this.error = 'Error al cargar los equipos.'
     });
   }

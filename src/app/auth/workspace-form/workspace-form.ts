@@ -26,7 +26,7 @@ export class WorkspaceFormComponent implements OnInit {
     if (this.workspaceId) {
       this.isEditing = true;
       this.workspaceService.getWorkspace(this.workspaceId).subscribe({
-        next: data => {
+        next: (data: any) => {
           this.name = data.name;
           this.description = data.description;
         },
@@ -49,10 +49,13 @@ export class WorkspaceFormComponent implements OnInit {
       : this.workspaceService.createWorkspace(workspace);
 
     request.subscribe({
-      next: () => this.router.navigate(['/workspaces']),
-      error: (err) => {
-        this.error = err.error?.message || 'Error al guardar el workspace.';
+      next: () => {
         this.loading = false;
+        this.router.navigate(['/workspace-list']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err.error?.error || 'Error al guardar el workspace.';
       }
     });
   }

@@ -1,0 +1,219 @@
+<div class="dashboard-page">
+  <header class="navbar">
+    <div class="navbar-left">
+      <button class="back-btn" (click)="goToHome()">← Inicio</button>
+      <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
+      <span class="app-name">KanbanFlow</span>
+      <span class="section-name">- Mi Dashboard</span>
+    </div>
+    <div class="navbar-center">
+      <input 
+        type="text" 
+        placeholder="Buscar mis tareas..." 
+        class="search-bar"
+        [(ngModel)]="searchTerm" />
+    </div>
+    <div class="navbar-right">
+      <button class="notification-btn">🔔</button>
+      <div class="user-menu">
+        <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
+        <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <div class="dropdown">
+          <a href="#">Mi Perfil</a>
+          <a href="#" (click)="goToWorkspaces(); $event.preventDefault()">Mis Workspaces</a>
+          <a href="#" (click)="onLogout(); $event.preventDefault()">Cerrar Sesión</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="content-header">
+      <h2>Mi Dashboard Personal</h2>
+      <p class="dashboard-description">Gestiona tus tareas asignadas y actualiza tu progreso</p>
+      
+      <div class="action-buttons">
+        <button class="refresh-btn" (click)="refresh()">🔄 Actualizar</button>
+        <button class="workspaces-btn" (click)="goToWorkspaces()">📁 Mis Workspaces</button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <label>Filtrar por estado:</label>
+        <select [(ngModel)]="filterStatus" class="filter-select">
+          <option value="all">Todas las tareas</option>
+          <option value="todo">📝 Por hacer</option>
+          <option value="in-progress">⚡ En progreso</option>
+          <option value="done">✅ Completadas</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-number">{{ myTasks.length }}</div>
+        <div class="stat-label">Total de Tareas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ getTodoTasksCount() }}</div>
+        <div class="stat-label">Por Hacer</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ getInProgressTasksCount() }}</div>
+        <div class="stat-label">En Progreso</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ getDoneTasksCount() }}</div>
+        <div class="stat-label">Completadas</div>
+      </div>
+    </div>
+
+    <!-- Lista de tareas -->
+    <div class="tasks-section">
+      <div class="loading-error">
+        <div *ngIf="loading" class="loading">Cargando tus tareas...</div>
+        <div *ngIf="error" class="error">{{ error }}</div>
+      </div>
+
+      <div *ngIf="!loading && getFilteredTasks().length === 0" class="no-tasks-message">
+        <p *ngIf="myTasks.length === 0">No tienes tareas asignadas aún.</p>
+        <p *ngIf="myTasks.length > 0">No hay tareas que coincidan con los filtros seleccionados.</p>
+      </div>
+
+      <div class="tasks-grid" *ngIf="!loading && getFilteredTasks().length > 0">
+        <div 
+          class="task-card" 
+          *ngFor="let task of getFilteredTasks()"
+          [class]="'status-' + getTaskStatus(task)"
+          (click)="openTaskModal(task)">
+          
+          <div class="task-header">
+            <h4>{{ task.title }}</h4>
+            <span class="status-badge" [class]="'status-' + getTaskStatus(task)">
+              {{ getTaskStatus(task) === 'todo' ? '📝 Por Hacer' : 
+                 getTaskStatus(task) === 'in-progress' ? '⚡ En Progreso' : '✅ Completada' }}
+            </span>
+          </div>
+
+          <p class="task-description">{{ task.description || 'Sin descripción' }}</p>
+
+          <div class="task-progress">
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                [style.width.%]="task.progress"
+                [class]="getProgressClass(task.progress)">
+              </div>
+            </div>
+            <span class="progress-text">{{ task.progress }}%</span>
+          </div>
+
+          <div class="task-meta">
+            <div class="workspace-info">
+              <span class="workspace-name">🏢 {{ getWorkspaceName(task) }}</span>
+              <span class="team-name" *ngIf="task.team_id">👥 {{ getTeamName(task.team_id) }}</span>
+            </div>
+            <div class="task-dates" *ngIf="task.created_at">
+              <small>Creado: {{ task.created_at | date:'short' }}</small>
+            </div>
+          </div>
+
+          <div class="task-actions">
+            <button 
+              class="edit-btn"
+              (click)="openTaskModal(task); $event.stopPropagation()">
+              ✏️ Actualizar Progreso
+            </button>
+            <button 
+              class="workspace-btn"
+              (click)="goToWorkspace(task.workspace_id); $event.stopPropagation()">
+              🏢 Ir al Workspace
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mis equipos -->
+    <div class="teams-section" *ngIf="myTeams.length > 0">
+      <h3>Mis Equipos</h3>
+      <div class="teams-grid">
+        <div class="team-card" *ngFor="let team of myTeams">
+          <h4>{{ team.name }}</h4>
+          <p class="workspace-name">{{ team.workspace?.name }}</p>
+          <div class="team-members" *ngIf="team.users">
+            <span class="member-count">👥 {{ team.users.length }} miembros</span>
+          </div>
+          <button 
+            class="workspace-btn"
+            (click)="goToWorkspace(team.workspace_id)">
+            Ir al Workspace
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal para actualizar progreso de tarea -->
+  <div class="modal-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Actualizar Progreso - {{ selectedTask?.title }}</h3>
+        <button class="close-btn" (click)="closeTaskModal()">×</button>
+      </div>
+      
+      <div class="task-details" *ngIf="selectedTask">
+        <p><strong>Descripción:</strong> {{ selectedTask.description || 'Sin descripción' }}</p>
+        <p><strong>Workspace:</strong> {{ getWorkspaceName(selectedTask) }}</p>
+        <p><strong>Equipo:</strong> {{ getTeamName(selectedTask.team_id!) }}</p>
+      </div>
+
+      <form (ngSubmit)="updateTaskProgress()" class="progress-form">
+        <div class="form-group">
+          <label for="progress">Progreso Actual: {{ updatedProgress }}%</label>
+          <input 
+            type="range" 
+            id="progress" 
+            [(ngModel)]="updatedProgress" 
+            name="progress"
+            min="0" 
+            max="100"
+            step="5"
+            class="progress-slider">
+          <div class="progress-marks">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="updatedIsDone" 
+              name="isDone">
+            Marcar como completada
+          </label>
+          <small *ngIf="updatedProgress === 100" class="auto-complete-note">
+            * Se marcará automáticamente como completada al llegar al 100%
+          </small>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeTaskModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="save-btn">
+            💾 Actualizar Progreso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
