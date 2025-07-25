@@ -14,7 +14,6 @@
         [(ngModel)]="searchTerm" />
     </div>
     <div class="navbar-right">
-      <button class="notification-btn">🔔</button>
       <div class="user-menu">
         <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
         <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>

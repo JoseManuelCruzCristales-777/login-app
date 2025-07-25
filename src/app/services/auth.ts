@@ -19,6 +19,14 @@ export class Auth {
     return this.http.post(`${this.apiUrl}/login`, data);
   }
 
+  forgotPassword(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, data);
+  }
+
+  resetPassword(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, data);
+  }
+
   getUser(): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/user`, { headers });

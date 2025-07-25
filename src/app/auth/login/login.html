@@ -24,7 +24,7 @@
 
       <div class="options">
         <label><input type="checkbox" /> Recuérdame</label>
-        <a href="#">¿Olvidaste tu contraseña?</a>
+        <a [routerLink]="'/forgot-password'">¿Olvidaste tu contraseña?</a>
       </div>
 
       <button type="submit" [disabled]="loginForm.invalid">Ingresar</button>

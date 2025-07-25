@@ -4,19 +4,21 @@
       <button class="back-btn" (click)="goBack()">← Volver</button>
       <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
       <span class="app-name">KanbanFlow</span>
-      <span class="workspace-name" *ngIf="workspace">- {{ workspace.name }}</span>
+      <span class="section-name" *ngIf="workspace">- {{ workspace.name }}</span>
     </div>
     <div class="navbar-center">
-      <input type="text" placeholder="Buscar tareas..." class="search-bar" />
+      <input 
+        type="text" 
+        placeholder="Buscar tareas..." 
+        class="search-bar" />
     </div>
     <div class="navbar-right">
-      <button class="notification-btn">🔔</button>
       <div class="user-menu">
         <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
         <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
-        <div class="dropdown" [class.visible]="showDropdown">
+        <div class="dropdown">
           <a href="#">Mi Perfil</a>
-          <a href="#">Configuración</a>
+          <a href="#" (click)="goBack(); $event.preventDefault()">Mis Workspaces</a>
           <a href="#" (click)="onLogout(); $event.preventDefault()">Cerrar Sesión</a>
         </div>
       </div>
@@ -319,7 +321,7 @@
         <h3>Crear Nuevo Equipo</h3>
         <button class="close-btn" (click)="closeTeamModal()">×</button>
       </div>
-      <form (ngSubmit)="saveTeam()" class="team-form">
+      <form (ngSubmit)="saveTeam()" class="task-form">
         <div class="form-group">
           <label for="team-name">Nombre del Equipo *</label>
           <input 
@@ -376,7 +378,7 @@
     <!-- Agregar nuevo miembro -->
     <div class="add-member-section">
       <h4>Agregar Nuevo Miembro</h4>
-      <form (ngSubmit)="addMemberToTeam()" class="add-member-form">
+      <form (ngSubmit)="addMemberToTeam()" class="task-form">
         <div class="form-group">
           <label for="user-select">Usuario *</label>
           <select 

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login/login';
 import { RegisterComponent } from './auth/register/register';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password';
 import { HomeSelectorComponent } from './auth/home-selector/home-selector';
 import { DashboardComponent } from './auth/dashboard/dashboard';
 import { WorkspaceListComponent } from './auth/workspace-list/workspace-list';
@@ -20,6 +22,16 @@ export const routes: Routes = [
   {
     path: 'register',
     component: RegisterComponent,
+    canActivate: [PublicGuard]
+  },
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
+    canActivate: [PublicGuard]
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
     canActivate: [PublicGuard]
   },
   {

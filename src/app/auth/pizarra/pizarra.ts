@@ -22,7 +22,6 @@ export class PizarraComponent implements OnInit {
   teams: Team[] = [];
   availableUsers: TeamUser[] = [];
   user: any = null;
-  showDropdown = false;
   showTaskModal = false;
   showTeamModal = false;
   showMembersModal = false;
