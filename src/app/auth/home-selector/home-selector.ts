@@ -42,7 +42,7 @@ export class HomeSelectorComponent implements OnInit {
   }
 
   goToDashboard() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard']); // Navegar a Mis tareas
   }
 
   goToWorkspaces() {
@@ -51,5 +51,9 @@ export class HomeSelectorComponent implements OnInit {
 
   onLogout() {
     this.authService.logout();
+  }
+
+  navigateTo(route: string) {
+    this.router.navigate([route]);
   }
 }

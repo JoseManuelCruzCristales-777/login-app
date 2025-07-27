@@ -4,7 +4,7 @@
       <button class="back-btn" (click)="goToHome()">← Inicio</button>
       <img src="assets/img/logoPrincipal.png" alt="Logo" class="logo" />
       <span class="app-name">KanbanFlow</span>
-      <span class="section-name">- Mi Dashboard</span>
+            <span class="section-name">- Mis tareas</span>
     </div>
     <div class="navbar-center">
       <input 
@@ -28,7 +28,7 @@
 
   <main class="main-content">
     <div class="content-header">
-      <h2>Mi Dashboard Personal</h2>
+      <h2>Mis tareas</h2>
       <p class="dashboard-description">Gestiona tus tareas asignadas y actualiza tu progreso</p>
       
       <div class="action-buttons">
@@ -132,25 +132,6 @@
               🏢 Ir al Workspace
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mis equipos -->
-    <div class="teams-section" *ngIf="myTeams.length > 0">
-      <h3>Mis Equipos</h3>
-      <div class="teams-grid">
-        <div class="team-card" *ngFor="let team of myTeams">
-          <h4>{{ team.name }}</h4>
-          <p class="workspace-name">{{ team.workspace?.name }}</p>
-          <div class="team-members" *ngIf="team.users">
-            <span class="member-count">👥 {{ team.users.length }} miembros</span>
-          </div>
-          <button 
-            class="workspace-btn"
-            (click)="goToWorkspace(team.workspace_id)">
-            Ir al Workspace
-          </button>
         </div>
       </div>
     </div>

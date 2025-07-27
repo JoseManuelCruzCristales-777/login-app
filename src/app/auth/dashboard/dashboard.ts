@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService, TaskData } from '../../services/task';
-import { TeamService, Team } from '../../services/team';
 import { Auth } from '../../services/auth';
+import { TeamService } from '../../services/team';
 
 interface User {
   id: number;
@@ -24,31 +24,32 @@ interface User {
 export class DashboardComponent implements OnInit {
   user: User | null = null;
   myTasks: TaskData[] = [];
-  myTeams: Team[] = [];
   loading = true;
   error: string | null = null;
 
   // Modal states
-  showTaskModal = false;
+  showTaskModal: boolean = false;
   selectedTask: TaskData | null = null;
-  updatedProgress = 0;
-  updatedIsDone = false;
+  updatedProgress: number = 0;
+  updatedIsDone: boolean = false;
 
   // Filtros
   filterStatus: 'all' | 'todo' | 'in-progress' | 'done' = 'all';
   searchTerm = '';
 
+  teams: any[] = []; // Para almacenar equipos y poder mostrar nombres
+
   constructor(
     private taskService: TaskService,
-    private teamService: TeamService,
     private authService: Auth,
-    private router: Router
+    private router: Router,
+    private teamService: TeamService // Inyectar TeamService
   ) {}
 
   ngOnInit() {
     this.loadUserData();
     this.loadMyTasks();
-    this.loadMyTeams();
+    this.loadTeams(); // Cargar equipos para mostrar nombres
   }
 
   loadUserData() {
@@ -79,145 +80,152 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  loadMyTeams() {
-    this.teamService.getUserTeams().subscribe({
-      next: (teams) => {
-        this.myTeams = teams;
+  // Método para cargar equipos (necesario para mostrar nombres)
+  loadTeams(): void {
+    this.teamService.getTeams().subscribe({
+      next: (teams: any[]) => {
+        this.teams = teams;
       },
-      error: (error) => {
-        console.error('Error loading teams:', error);
+      error: (error: any) => {
+        console.error('Error al cargar equipos:', error);
+        this.teams = [];
       }
     });
   }
 
-  // Filtrar tareas
+  // Métodos para filtros y estadísticas
   getFilteredTasks(): TaskData[] {
     let filtered = this.myTasks;
 
-    // Filtrar por estado
-    if (this.filterStatus !== 'all') {
-      filtered = filtered.filter(task => {
-        if (this.filterStatus === 'todo') return !task.is_done && task.progress < 100;
-        if (this.filterStatus === 'in-progress') return !task.is_done && task.progress > 0 && task.progress < 100;
-        if (this.filterStatus === 'done') return task.is_done || task.progress === 100;
-        return true;
-      });
-    }
-
     // Filtrar por término de búsqueda
     if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(task => 
-        task.title.toLowerCase().includes(term) ||
-        (task.description && task.description.toLowerCase().includes(term))
+      filtered = filtered.filter(task =>
+        task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        (task.description && task.description.toLowerCase().includes(this.searchTerm.toLowerCase()))
       );
+    }
+
+    // Filtrar por estado
+    if (this.filterStatus !== 'all') {
+      filtered = filtered.filter(task => this.getTaskStatus(task) === this.filterStatus);
     }
 
     return filtered;
   }
 
-  // Obtener estado de la tarea
-  getTaskStatus(task: TaskData): 'todo' | 'in-progress' | 'done' {
-    if (task.is_done || task.progress === 100) return 'done';
+  getTaskStatus(task: TaskData): string {
+    if (task.is_done) return 'done';
     if (task.progress > 0) return 'in-progress';
     return 'todo';
   }
 
   // Obtener clase CSS para el progreso
   getProgressClass(progress: number): string {
-    if (progress === 100) return 'complete';
-    if (progress >= 75) return 'high';
-    if (progress >= 50) return 'medium';
-    if (progress >= 25) return 'low';
-    return 'none';
+    if (progress === 0) return 'progress-none';
+    if (progress <= 25) return 'progress-low';
+    if (progress <= 50) return 'progress-medium';
+    if (progress <= 75) return 'progress-high';
+    return 'progress-complete';
   }
 
-  // Abrir modal para editar tarea
-  openTaskModal(task: TaskData) {
+  // Métodos auxiliares para obtener nombres
+  getWorkspaceName(task: TaskData): string {
+    if (task.workspace && task.workspace.name) {
+      return task.workspace.name;
+    }
+    // Si no tiene la relación cargada, mostrar ID como fallback
+    return `Workspace ${task.workspace_id}`;
+  }
+
+  getTeamName(teamId: number): string {
+    // Si tenemos equipos cargados, buscar el nombre
+    if (this.teams && this.teams.length > 0) {
+      const team = this.teams.find(t => t.id === teamId);
+      if (team) {
+        return team.name;
+      }
+    }
+    // Fallback si no encontramos el equipo
+    return `Equipo ${teamId}`;
+  }
+
+  // Métodos auxiliares para el modal
+  openTaskModal(task: TaskData): void {
     this.selectedTask = task;
     this.updatedProgress = task.progress;
     this.updatedIsDone = task.is_done;
     this.showTaskModal = true;
   }
 
-  // Cerrar modal
-  closeTaskModal() {
+  closeTaskModal(): void {
     this.showTaskModal = false;
     this.selectedTask = null;
+    this.updatedProgress = 0;
+    this.updatedIsDone = false;
   }
 
-  // Actualizar progreso de tarea
-  updateTaskProgress() {
+  updateTaskProgress(): void {
     if (!this.selectedTask) return;
+
+    // Si está al 100%, marcar automáticamente como completada
+    if (this.updatedProgress === 100) {
+      this.updatedIsDone = true;
+    }
 
     const updateData = {
       progress: this.updatedProgress,
-      is_done: this.updatedIsDone || this.updatedProgress === 100
+      is_done: this.updatedIsDone
     };
 
-    this.taskService.updateTaskProgress(this.selectedTask.id!, updateData).subscribe({
-      next: (updatedTask) => {
-        // Actualizar la tarea en la lista local
-        const index = this.myTasks.findIndex(t => t.id === updatedTask.id);
-        if (index !== -1) {
-          this.myTasks[index] = updatedTask;
-        }
+    this.taskService.updateTask(this.selectedTask.id!, updateData).subscribe({
+      next: () => {
+        // Actualizar la tarea local
+        this.selectedTask!.progress = this.updatedProgress;
+        this.selectedTask!.is_done = this.updatedIsDone;
+        
+        // Recargar todas las tareas para asegurar consistencia
+        this.loadMyTasks();
         this.closeTaskModal();
       },
-      error: (error) => {
-        console.error('Error updating task:', error);
-        this.error = 'Error al actualizar la tarea';
+      error: (error: any) => {
+        console.error('Error al actualizar progreso:', error);
+        this.error = 'Error al actualizar el progreso de la tarea';
       }
     });
   }
 
-  // Navegar a home selector
-  goToHome() {
-    this.router.navigate(['/home']);
-  }
-
-  // Navegar a workspace específico
-  goToWorkspace(workspaceId: number) {
+  // Métodos auxiliares para navegación
+  goToWorkspace(workspaceId: number): void {
     this.router.navigate(['/workspace', workspaceId]);
   }
 
-  // Navegar a lista de workspaces
-  goToWorkspaces() {
+  goToHome(): void {
+    this.router.navigate(['/home']);
+  }
+
+  goToWorkspaces(): void {
     this.router.navigate(['/workspace-list']);
   }
 
-  // Obtener nombre del equipo de una tarea
-  getTeamName(teamId: number): string {
-    const team = this.myTeams.find(t => t.id === teamId);
-    return team ? team.name : 'Equipo no encontrado';
-  }
-
-  // Obtener nombre del workspace de una tarea
-  getWorkspaceName(task: TaskData): string {
-    return task.workspace?.name || 'Workspace no encontrado';
-  }
-
-  // Cerrar sesión
-  onLogout() {
-    this.authService.logout();
-  }
-
-  // Refrescar datos
-  refresh() {
+  refresh(): void {
     this.loadMyTasks();
-    this.loadMyTeams();
   }
 
   // Métodos auxiliares para las estadísticas
   getTodoTasksCount(): number {
-    return this.getFilteredTasks().filter(task => this.getTaskStatus(task) === 'todo').length;
+    return this.myTasks.filter(task => this.getTaskStatus(task) === 'todo').length;
   }
 
   getInProgressTasksCount(): number {
-    return this.getFilteredTasks().filter(task => this.getTaskStatus(task) === 'in-progress').length;
+    return this.myTasks.filter(task => this.getTaskStatus(task) === 'in-progress').length;
   }
 
   getDoneTasksCount(): number {
-    return this.getFilteredTasks().filter(task => this.getTaskStatus(task) === 'done').length;
+    return this.myTasks.filter(task => this.getTaskStatus(task) === 'done').length;
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

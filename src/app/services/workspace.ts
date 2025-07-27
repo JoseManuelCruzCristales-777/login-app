@@ -30,6 +30,11 @@ export interface TeamUser {
   };
 }
 
+// Extender la interfaz Workspace para incluir rol del usuario
+export interface WorkspaceWithRole extends Workspace {
+  userRole?: 'owner' | 'leader' | 'member';
+}
+
 @Injectable({ providedIn: 'root' })
 export class WorkspaceService {
   private apiUrl = 'http://127.0.0.1:8000/api';
@@ -66,5 +71,26 @@ export class WorkspaceService {
   deleteWorkspace(id: number): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.delete(`${this.apiUrl}/workspaces/${id}`, { headers });
+  }
+
+  // Nuevos métodos para workspaces
+  getMemberWorkspaces(): Observable<Workspace[]> {
+    return this.http.get<Workspace[]>(`${this.apiUrl}/workspaces/member`);
+  }
+
+  // Métodos para gestión de equipos
+  getAvailableUsersForTeam(teamId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/users/available/${teamId}`);
+  }
+
+  addMemberToTeam(teamId: number, userId: number, role: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/teams/${teamId}/members`, {
+      user_id: userId,
+      role: role
+    });
+  }
+
+  removeMemberFromTeam(teamId: number, userId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/teams/${teamId}/members/${userId}`);
   }
 }

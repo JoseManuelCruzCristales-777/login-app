@@ -38,7 +38,7 @@
     <!-- Estadísticas rápidas -->
     <div class="stats-section">
       <div class="stat-card">
-        <div class="stat-number">{{ workspaces.length }}</div>
+        <div class="stat-number">{{ ownWorkspaces.length + memberWorkspaces.length }}</div>
         <div class="stat-label">Total Workspaces</div>
       </div>
       <div class="stat-card">
@@ -47,60 +47,121 @@
       </div>
       <div class="stat-card">
         <div class="stat-number">{{ getSharedWithMeCount() }}</div>
-        <div class="stat-label">Compartidos</div>
+        <div class="stat-label">Compartidos conmigo</div>
       </div>
     </div>
 
     <div class="loading-error">
+      <div *ngIf="loading" class="loading">Cargando workspaces...</div>
       <div *ngIf="error" class="error">{{ error }}</div>
     </div>
 
-    <div *ngIf="!error && workspaces.length === 0" class="no-workspaces-message">
-      <p>No tienes workspaces aún. Crea tu primer workspace para comenzar a gestionar proyectos.</p>
+    <div *ngIf="!loading && !error && ownWorkspaces.length === 0 && memberWorkspaces.length === 0" class="no-workspaces-message">
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>No tienes workspaces</h3>
+        <p>Crea tu primer workspace o pide a alguien que te agregue a un equipo</p>
+        <button class="create-btn" (click)="createWorkspace()">+ Crear mi primer Workspace</button>
+      </div>
     </div>
 
-    <div class="workspaces-section" *ngIf="workspaces.length > 0">
+    <!-- Mensaje especial para usuarios solo con workspaces compartidos -->
+    <div *ngIf="!loading && !error && ownWorkspaces.length === 0 && memberWorkspaces.length > 0" class="info-message">
+      <div class="info-content">
+        <div class="info-icon">ℹ️</div>
+        <div class="info-text">
+          <h4>¡Bienvenido a los workspaces compartidos!</h4>
+          <p>Actualmente no tienes workspaces propios, pero perteneces a {{ memberWorkspaces.length }} workspace(s) compartido(s). 
+          Puedes crear tu propio workspace cuando quieras.</p>
+        </div>
+        <button class="create-btn secondary" (click)="createWorkspace()">+ Crear mi Workspace</button>
+      </div>
+    </div>
+
+    <!-- Workspaces Propios -->
+    <section class="workspaces-section" *ngIf="ownWorkspaces.length > 0">
+      <h3>📁 Mis Workspaces Creados</h3>
       <div class="workspaces-grid">
-        <div
-          class="workspace-card"
-          *ngFor="let workspace of workspaces"
-          (click)="workspace.id && goToWorkspace(workspace.id)">
-          
+        <div class="workspace-card owner" *ngFor="let workspace of ownWorkspaces">
           <div class="workspace-header">
             <h4>{{ workspace.name }}</h4>
             <div class="workspace-actions">
-              <span class="workspace-badge">ID: {{ workspace.id }}</span>
+              <button class="edit-btn" (click)="editWorkspace(workspace.id)">✏️</button>
+              <button class="delete-btn" (click)="deleteWorkspace(workspace.id, $event)">🗑️</button>
+            </div>
+          </div>
+          <p class="workspace-description">{{ workspace.description || 'Sin descripción' }}</p>
+          <div class="workspace-meta">
+            <span class="role-badge owner">👑 Propietario</span>
+            <span class="created-date">Creado: {{ workspace.created_at | date:'short' }}</span>
+          </div>
+          <button class="enter-btn" (click)="enterWorkspace(workspace.id)">
+            🚀 Gestionar Workspace
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workspaces donde es Miembro -->
+    <section class="workspaces-section" *ngIf="memberWorkspaces.length > 0">
+      <h3>👥 Workspaces Compartidos</h3>
+      <p class="section-description">Workspaces donde pertenezco a equipos como líder o miembro</p>
+      
+      <div class="workspaces-list">
+        <div class="workspace-item" 
+             [class]="workspace.userRole === 'leader' ? 'leader' : 'member'" 
+             *ngFor="let workspace of memberWorkspaces">
+          <div class="workspace-content" (click)="enterWorkspace(workspace.id)">
+            <div class="workspace-header">
+              <div class="workspace-title">
+                <h4>{{ workspace.name }}</h4>
+                <span class="role-badge" [class]="workspace.userRole">
+                  {{ workspace.userRole === 'leader' ? '� Líder de Equipo' : '�👤 Miembro de Equipo' }}
+                </span>
+              </div>
+              <div class="workspace-status">
+                <span class="status-indicator" [class]="workspace.userRole === 'leader' ? 'management' : 'readonly'">
+                  {{ workspace.userRole === 'leader' ? '⚡ Gestión' : '👁️ Solo lectura' }}
+                </span>
+              </div>
+            </div>
+
+            <p class="workspace-description">{{ workspace.description || 'Sin descripción' }}</p>
+
+            <div class="workspace-meta">
+              <div class="workspace-info">
+                <span class="created-date">
+                  <i class="icon">�</i>
+                  Creado: {{ workspace.created_at | date:'short' }}
+                </span>
+                <span class="access-type">
+                  <i class="icon">🔒</i>
+                  Acceso: Solo visualización
+                </span>
+              </div>
+              <div class="workspace-permissions">
+                <small class="permission-note">
+                  • Puedes ver tareas y equipos<br>
+                  • No puedes crear ni editar
+                </small>
+              </div>
+            </div>
+
+            <div class="workspace-actions">
               <button 
-                class="delete-btn" 
-                (click)="deleteWorkspace(workspace, $event)"
-                title="Eliminar workspace">
-                🗑️
+                class="enter-btn view-only"
+                (click)="enterWorkspace(workspace.id); $event.stopPropagation()">
+                👀 Ver Workspace
+              </button>
+              <button 
+                class="info-btn"
+                (click)="showWorkspaceInfo(workspace); $event.stopPropagation()">
+                ℹ️ Más info
               </button>
             </div>
           </div>
-
-          <p class="workspace-description">{{ workspace.description || 'Sin descripción' }}</p>
-
-          <div class="workspace-meta">
-            <div class="creator-info">
-              <span class="created-by">
-                ✏️ {{ getCreatorName(workspace.created_by) }}
-              </span>
-            </div>
-            <div class="workspace-dates" *ngIf="workspace.created_at">
-              <small>Creado: {{ workspace.created_at | date:'short' }}</small>
-            </div>
-          </div>
-
-          <div class="workspace-actions-bottom">
-            <button 
-              class="enter-btn"
-              (click)="goToWorkspace(workspace.id); $event.stopPropagation()">
-              🚀 Entrar al Workspace
-            </button>
-          </div>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 </div>

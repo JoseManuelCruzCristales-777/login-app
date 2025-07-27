@@ -34,13 +34,30 @@
         <div *ngIf="error" class="error">{{ error }}</div>
       </div>
       <div class="action-buttons">
-        <button class="create-team-btn" (click)="openTeamModal()">+ Crear Equipo</button>
         <button 
+          *ngIf="canManageTeams"
+          class="create-team-btn" 
+          (click)="openTeamModal()">
+          + Crear Equipo
+        </button>
+        <button 
+          *ngIf="canCreateTasks"
           class="create-task-btn" 
           (click)="openTaskModal()"
           [disabled]="!canCreateTasks">
           + Agregar Tarea
         </button>
+        
+        <!-- Mensaje de modo solo lectura -->
+        <div *ngIf="isReadOnlyMode && !readOnlyMessage.includes('❌')" class="read-only-banner">
+          <div class="read-only-content">
+            <span class="read-only-icon">👁️</span>
+            <span class="read-only-text">{{ readOnlyMessage }}</span>
+          </div>
+          <small class="read-only-note">
+            Puedes ver todas las tareas del workspace pero no realizar cambios
+          </small>
+        </div>
       </div>
     </div>
 

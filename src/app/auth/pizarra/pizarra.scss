@@ -729,6 +729,156 @@
   }
 }
 
+// Estilos para modo solo lectura
+.read-only-banner {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  
+  .read-only-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    
+    .read-only-icon {
+      font-size: 1.5rem;
+    }
+    
+    .read-only-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #92400e;
+    }
+  }
+  
+  .read-only-note {
+    color: #a16207;
+    font-size: 0.875rem;
+    font-style: italic;
+    margin-left: 2.25rem;
+  }
+}
+
+// Ocultar botones de acción en modo solo lectura
+.read-only-mode {
+  .task-actions,
+  .team-actions {
+    display: none !important;
+  }
+  
+  .task-card,
+  .team-card {
+    cursor: default !important;
+  }
+  
+  .task-card:hover,
+  .team-card:hover {
+    transform: none !important;
+  }
+}
+
+// Banner de acceso denegado
+.access-denied-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  
+  .denied-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .denied-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #dc2626;
+    margin-bottom: 0.5rem;
+  }
+  
+  .denied-message {
+    color: #991b1b;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .back-to-workspaces {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Estilos adicionales para mensaje de acceso denegado
+.denied-explanation {
+  background: rgba(220, 38, 38, 0.05);
+  border-left: 4px solid #dc2626;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+  color: #991b1b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.access-controls-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  
+  .info-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .permission-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      padding: 0.5rem 0;
+      color: #3730a3;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      &:before {
+        content: "✓";
+        color: #059669;
+        font-weight: bold;
+      }
+      
+      &.restricted:before {
+        content: "✗";
+        color: #dc2626;
+      }
+    }
+  }
+}
+
 // Responsive design
 @media (max-width: 1024px) {
   .kanban-board {
@@ -870,8 +1020,10 @@
       color: #6b7280;
       font-style: italic;
       margin-top: 0.5rem;
-      display: block;
-      font-size: 0.875rem;
+      padding: 0.5rem;
+      background: rgba(156, 163, 175, 0.1);
+      border-radius: 4px;
+      text-align: center;
     }
 
     // Los estilos del formulario se heredan de .task-form
@@ -900,4 +1052,21 @@
     background: #059669;
     transform: translateY(-1px);
   }
+}
+
+.loading-users {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
+
+.member-workspace-indicator {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
 }

@@ -113,4 +113,11 @@ export class TaskService {
     // Ruta alternativa usando filtros
     return this.http.get<TaskData[]>(`${this.apiUrl}/tasks?workspace_id=${workspaceId}`, { headers });
   }
+
+  // Método para obtener tareas de un equipo específico
+  getTeamTasks(teamId: number): Observable<TaskData[]> {
+    return this.http.get<TaskData[]>(`${this.apiUrl}/teams/${teamId}/tasks`, { 
+      headers: this.getAuthHeaders() 
+    });
+  }
 }

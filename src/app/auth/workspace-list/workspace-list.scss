@@ -296,6 +296,17 @@
 }
 
 .workspaces-section {
+  margin-bottom: 2rem;
+
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .workspaces-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -318,95 +329,310 @@
       background: rgba(255, 255, 255, 0.15);
     }
 
-    .workspace-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
+    &.owner {
+      border-left: 4px solid #10b981;
+
+      .role-badge.owner {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+      }
+    }
+
+    &.member {
+      border-left: 4px solid #3b82f6;
+
+      .role-badge.member {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+      }
+    }
+  }
+
+  // Estilos para workspaces compartidos (tipo lista como dashboard)
+  .workspaces-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .workspace-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    &.member {
+      border-left-color: #3b82f6;
+    }
+
+    &.leader {
+      border-left-color: #10b981; // Verde para líderes
+
+      .role-badge.leader {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+      }
+    }
+  }
+
+  .workspace-content {
+    padding: 1.5rem;
+    cursor: pointer;
+  }
+
+  .workspace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    .workspace-title {
+      flex: 1;
 
       h4 {
-        color: white;
-        font-size: 1.2rem;
+        margin: 0 0 0.5rem 0;
+        color: #1f2937;
+        font-size: 1.25rem;
         font-weight: 600;
-        margin: 0;
-        flex: 1;
       }
+    }
 
-      .workspace-actions {
+    .workspace-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .status-indicator {
+    &.readonly {
+      background: rgba(107, 114, 128, 0.1);
+      color: #6b7280;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    &.management {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  }
+
+  .role-badge {
+    &.member {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  }
+
+  .workspace-description {
+    color: #6b7280;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .workspace-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(243, 244, 246, 0.5);
+    border-radius: 8px;
+
+    .workspace-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+
+        .icon {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .workspace-permissions {
+      text-align: right;
+
+      .permission-note {
+        color: #9ca3af;
+        font-size: 0.75rem;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .workspace-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+
+    .enter-btn {
+      &.view-only {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         gap: 0.5rem;
 
-        .workspace-badge {
-          padding: 0.25rem 0.5rem;
-          background: rgba(59, 130, 246, 0.2);
-          color: #93c5fd;
-          border-radius: 12px;
-          font-size: 0.7rem;
-          font-weight: 500;
-        }
-
-        .delete-btn {
-          background: rgba(239, 68, 68, 0.2);
-          border: 1px solid rgba(239, 68, 68, 0.4);
-          border-radius: 8px;
-          color: #fca5a5;
-          padding: 0.25rem 0.5rem;
-          font-size: 0.8rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background: rgba(239, 68, 68, 0.3);
-            transform: scale(1.05);
-          }
-        }
-      }
-    }
-
-    .workspace-description {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      margin-bottom: 1rem;
-    }
-
-    .workspace-meta {
-      margin-bottom: 1rem;
-
-      .creator-info {
-        margin-bottom: 0.5rem;
-
-        .created-by {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.8rem;
+        &:hover {
+          background: linear-gradient(135deg, #4b5563, #374151);
+          transform: translateY(-1px);
         }
       }
 
-      .workspace-dates {
-        small {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 0.75rem;
-        }
-      }
-    }
-
-    .workspace-actions-bottom {
-      .enter-btn {
-        width: 100%;
-        padding: 0.75rem;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        border: none;
-        border-radius: 8px;
+      &.management {
+        background: linear-gradient(135deg, #10b981, #059669);
         color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
 
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+          background: linear-gradient(135deg, #059669, #047857);
+          transform: translateY(-1px);
+        }
+      }
+    }
+
+    .info-btn {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:hover {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
+      }
+    }
+  }
+
+  .section-description {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+}
+
+// Mensaje informativo para usuarios con solo workspaces compartidos
+.info-message {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+
+  .info-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    .info-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-text {
+      h4 {
+        color: #1e40af;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+      }
+
+      p {
+        color: #3730a3;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 0;
+        max-width: 600px;
+      }
+    }
+
+    .create-btn.secondary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+
+      &:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+      }
+    }
+  }
+}
+
+// Responsive para mensaje informativo
+@media (max-width: 768px) {
+  .info-message {
+    padding: 1.5rem;
+
+    .info-content {
+      .info-text {
+        h4 {
+          font-size: 1.25rem;
+        }
+
+        p {
+          font-size: 1rem;
         }
       }
     }
@@ -448,5 +674,24 @@
 
   .workspaces-grid {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-meta {
+    flex-direction: column;
+    gap: 1rem;
+
+    .workspace-permissions {
+      text-align: left;
+    }
+  }
+
+  .workspace-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .enter-btn, .info-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }

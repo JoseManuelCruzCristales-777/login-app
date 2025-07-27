@@ -117,6 +117,27 @@
   position: relative;
   overflow: hidden;
 
+  // Línea de color a la izquierda
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    transition: all 0.3s ease;
+  }
+
+  // Primera tarjeta (Workspaces) - línea azul
+  &:first-child::before {
+    background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  }
+
+  // Segunda tarjeta (Mis tareas) - línea verde
+  &:last-child::before {
+    background: linear-gradient(180deg, #10b981, #059669);
+  }
+
   &::before {
     content: '';
     position: absolute;
