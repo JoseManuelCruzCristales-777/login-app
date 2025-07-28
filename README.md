@@ -1,4 +1,4 @@
-# Sistema Kanban - Gestión de Tareas y Equipos
+# Sistema KanbanFlow - Gestión de Tareas y Equipos
 
 Una aplicación web completa de gestión de proyectos colaborativos con frontend Angular 17+ y backend Laravel, permitiendo la administración de workspaces, equipos y tareas con diferentes niveles de permisos.
 
@@ -55,25 +55,25 @@ Este sistema Kanban tiene como objetivo crear una plataforma completa de gestió
 
 Explora las principales funcionalidades del sistema a través de estas capturas de pantalla:
 
-### 🏠 **Gestión de Workspaces**
+### **Gestión de Workspaces**
 ![Workspaces](./imagenes/workspaces.png)
 *Vista principal de gestión de espacios de trabajo, donde los usuarios pueden crear, administrar y acceder a sus proyectos. Incluye estadísticas y navegación intuitiva.*
 
-### 📝 **Registro de Usuario**
+###  **Registro de Usuario**
 ![Registro](./imagenes/registro.png)
 *Formulario de registro con validaciones en tiempo real, diseño glassmorphism y campos obligatorios para crear una cuenta nueva en el sistema.*
 
-### 📋 **Pizarra Kanban**
+###  **Pizarra Kanban**
 ![Pizarra Kanban](./imagenes/pizarra.png)
 *Tablero visual estilo Kanban para gestión de tareas por equipos, con columnas de estado (Pendiente, En Progreso, Completado) y funcionalidad drag & drop.*
 
-### ✅ **Dashboard de Tareas**
+###  **Dashboard de Tareas**
 ![Dashboard Tareas](./imagenes/tareas.png)
 *Panel personal del usuario mostrando estadísticas de tareas asignadas, progreso individual y filtros por estado para una gestión eficiente.*
 
 ---
 
-## 🏗️ Arquitectura del Sistema Angular
+## Arquitectura del Sistema Angular
 
 ### Componentes Principales
 
@@ -364,7 +364,7 @@ intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> 
 
 ---
 
-## 🎨 Sistema de Diseño
+##  Sistema de Diseño
 
 ### Glassmorphism Design System
 - **Colores primarios**: Gradientes azules y morados
@@ -385,75 +385,16 @@ $box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 
 ---
 
-## 🔄 Flujo de Navegación
 
-### 1. **Flujo de Autenticación Completo**
-```
-Inicio → LoginComponent → AuthService → JWT Token → HomeSelectorComponent
-  ↓
-RegisterComponent → Validaciones → AuthService → Auto-login → HomeSelectorComponent
-  ↓
-ForgotPasswordComponent → Email recuperación → ResetPasswordComponent → Nueva contraseña
-```
-
-### 2. **Flujo de Registro de Usuario**
-```
-RegisterComponent → Validar formulario → AuthService.register() → Backend Laravel
-  ↓
-Respuesta exitosa → setToken() → Redirección automática → HomeSelectorComponent
-```
-
-### 3. **Flujo de Recuperación de Contraseña**
-```
-LoginComponent → "¿Olvidaste tu contraseña?" → ForgotPasswordComponent
-  ↓
-Ingresar email → AuthService.forgotPassword() → Backend envía email
-  ↓
-Usuario recibe email → Click enlace → ResetPasswordComponent → Nueva contraseña
-```
-
-### 4. **Flujo Personal (Dashboard)**
-```
-HomeSelectorComponent → "Mi Dashboard" → DashboardComponent → TaskService → Personal Tasks
-  ↓
-Ver estadísticas → Filtrar tareas → Actualizar progreso → Gestión individual
-```
-
-### 5. **Flujo Administrativo (Workspaces)**
-```
-HomeSelectorComponent → "Mis Workspaces" → WorkspaceListComponent
-  ↓
-Crear/Gestionar workspace → TeamListComponent → Seleccionar equipo → PizarraComponent
-  ↓
-Gestión visual de tareas → Kanban Board → Drag & Drop → CRUD tareas
-```
-
-### 6. **Flujo de Gestión de Tareas**
-```
-PizarraComponent → Crear tarea → TaskService.createTask() → Backend
-  ↓
-Asignar miembro → Actualizar estado → Drag & Drop → TaskService.updateTask()
-  ↓
-Seguimiento progreso → Dashboard personal → Notificaciones
-```
-
-### 7. **Flujo de Protección de Rutas**
-```
-Ruta solicitada → AuthGuard.canActivate() → Verificar token JWT
-  ↓
-Token válido: Permitir acceso
-Token inválido: Redirect → LoginComponent
-  ↓
-PublicGuard: Si ya autenticado → Redirect → HomeSelectorComponent
 ```
 
 ---
 
-## 📋 API de Gestión de Tareas y Equipos - Laravel
+##  API de Gestión de Tareas y Equipos - Laravel
 
 ### Guía de Uso Rápido
 
-### 🔑 **1. AUTENTICACIÓN (OBLIGATORIO)**
+### **1. AUTENTICACIÓN (OBLIGATORIO)**
 
 ```bash
 # Registro de usuario
@@ -481,7 +422,7 @@ Headers: {
 }
 ```
 
-### 🏢 **2. FLUJO DE TRABAJO (ORDEN OBLIGATORIO)**
+### **2. FLUJO DE TRABAJO (ORDEN OBLIGATORIO)**
 
 ```bash
 # PASO 1: Crear workspace (PRIMERO)
@@ -528,7 +469,7 @@ PUT /api/tasks/1
 # Respuesta: { "success": true }
 ```
 
-### 👤 **3. ROLES Y PERMISOS**
+###  **3. ROLES Y PERMISOS**
 
 **CREADOR DE WORKSPACE:**
 - ✅ Puede crear/editar/eliminar workspace
@@ -548,7 +489,7 @@ PUT /api/tasks/1
 - ❌ NO puede crear/eliminar tareas
 - ❌ NO puede gestionar miembros
 
-### 📊 **4. CONSULTAS IMPORTANTES**
+###  **4. CONSULTAS IMPORTANTES**
 
 ```bash
 # Ver mis tareas asignadas
@@ -570,7 +511,7 @@ GET /api/users
 GET /api/workspaces/1/tasks
 ```
 
-### ⚠️ **5. RESPUESTAS DE LA API**
+### **5. RESPUESTAS DE LA API**
 
 ```json
 // ÉXITO en operaciones (crear, editar, eliminar)
