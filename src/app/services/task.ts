@@ -34,6 +34,16 @@ export interface TaskData {
   };
 }
 
+// Interface actualizada para TaskData sin team_id (según schema real)
+export interface TaskDataCreate {
+  title: string;
+  description?: string;
+  workspace_id: number;
+  assigned_to: number;
+  progress?: number;
+  is_done?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,12 +55,15 @@ export class TaskService {
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     });
   }
 
   // Obtener todas las tareas asignadas al usuario autenticado
-  getUserTasks(): Observable<TaskData[]> {
+  getTasks(): Observable<TaskData[]> {
+    console.log('🌐 TaskService: Obteniendo tareas del usuario autenticado...');
     return this.http.get<TaskData[]>(`${this.apiUrl}/tasks`, { 
       headers: this.getAuthHeaders() 
     });
@@ -63,13 +76,7 @@ export class TaskService {
     });
   }
 
-  // Actualizar progreso de tarea (para miembros)
-  updateTaskProgress(id: number, data: { progress: number; is_done: boolean }): Observable<TaskData> {
-    return this.http.put<TaskData>(`${this.apiUrl}/tasks/${id}`, data, { 
-      headers: this.getAuthHeaders() 
-    });
-  }
-
+  // Crear nueva tarea (método principal)
   createTask(data: { 
     title: string; 
     description?: string; 
@@ -77,41 +84,48 @@ export class TaskService {
     team_id: number; 
     assigned_to: number; 
   }): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.post(`${this.apiUrl}/tasks`, data, { headers });
+    console.log('🌐 TaskService: Creando nueva tarea...');
+    return this.http.post(`${this.apiUrl}/tasks`, data, { 
+      headers: this.getAuthHeaders() 
+    });
   }
 
+  // Actualizar tarea
   updateTask(id: number, data: Partial<TaskData>): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.put(`${this.apiUrl}/tasks/${id}`, data, { headers });
+    console.log('🌐 TaskService: Actualizando tarea ID:', id);
+    return this.http.put(`${this.apiUrl}/tasks/${id}`, data, { 
+      headers: this.getAuthHeaders() 
+    });
   }
 
+  // Eliminar tarea
   deleteTask(id: number): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.delete(`${this.apiUrl}/tasks/${id}`, { headers });
+    console.log('🌐 TaskService: Eliminando tarea ID:', id);
+    return this.http.delete(`${this.apiUrl}/tasks/${id}`, { 
+      headers: this.getAuthHeaders() 
+    });
   }
 
-  getTasks(): Observable<TaskData[]> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<TaskData[]>(`${this.apiUrl}/tasks`, { headers });
+  // Actualizar progreso de tarea (para miembros)
+  updateTaskProgress(id: number, data: { progress: number; is_done: boolean }): Observable<TaskData> {
+    return this.http.put<TaskData>(`${this.apiUrl}/tasks/${id}`, data, { 
+      headers: this.getAuthHeaders() 
+    });
   }
 
-  getTask(id: number): Observable<TaskData> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<TaskData>(`${this.apiUrl}/tasks/${id}`, { headers });
-  }
-
+  // Obtener tareas de un workspace específico (para líderes)
   getWorkspaceTasks(workspaceId: number): Observable<TaskData[]> {
-    const headers = this.getAuthHeaders();
-    // Usar la ruta específica que tienes configurada
-    return this.http.get<TaskData[]>(`${this.apiUrl}/workspaces/${workspaceId}/tasks`, { headers });
+    console.log('🌐 TaskService: Obteniendo tareas del workspace:', workspaceId);
+    return this.http.get<TaskData[]>(`${this.apiUrl}/workspaces/${workspaceId}/tasks`, { 
+      headers: this.getAuthHeaders() 
+    });
   }
 
   // Método alternativo en caso de que la ruta principal falle
   getTasksByWorkspaceAlternative(workspaceId: number): Observable<TaskData[]> {
-    const headers = this.getAuthHeaders();
-    // Ruta alternativa usando filtros
-    return this.http.get<TaskData[]>(`${this.apiUrl}/tasks?workspace_id=${workspaceId}`, { headers });
+    return this.http.get<TaskData[]>(`${this.apiUrl}/tasks?workspace_id=${workspaceId}`, { 
+      headers: this.getAuthHeaders() 
+    });
   }
 
   // Método para obtener tareas de un equipo específico

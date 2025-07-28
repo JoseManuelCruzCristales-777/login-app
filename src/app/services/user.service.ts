@@ -15,18 +15,39 @@ export class UserService {
     });
   }
 
+  // Helper para crear headers con token de autenticación
+  private createAuthHeaders(): { [header: string]: string } {
+    const token = localStorage.getItem('token');
+    const headers: { [header: string]: string } = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔐 UserService - Headers con token agregado');
+    } else {
+      console.log('⚠️ UserService - No se encontró token de autenticación');
+    }
+    
+    return headers;
+  }
+
+  // Obtener información del usuario actual
   getUser(): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.get(`${this.apiUrl}/user`, { headers });
   }
 
-  updateUser(data: any): Observable<any> {
+  // Obtener todos los usuarios
+  getUsers(): Observable<any[]> {
     const headers = this.getAuthHeaders();
-    return this.http.put(`${this.apiUrl}/user`, data, { headers });
+    return this.http.get<any[]>(`${this.apiUrl}/users`, { headers });
   }
 
-  getAllUsers(): Observable<any> {
+  // Actualizar perfil del usuario
+  updateProfile(userData: any): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${this.apiUrl}/users`, { headers });
+    return this.http.put(`${this.apiUrl}/user/profile`, userData, { headers });
   }
 }

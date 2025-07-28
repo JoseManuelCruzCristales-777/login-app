@@ -4,6 +4,18 @@
       <h2>Bienvenido</h2>
       <p>Inicia sesión para continuar</p>
 
+      <!-- Mensaje de error general -->
+      <div class="error-message" *ngIf="errorMessage">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text">{{ errorMessage }}</span>
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div class="success-message" *ngIf="successMessage">
+        <span class="success-icon">✅</span>
+        <span class="success-text">{{ successMessage }}</span>
+      </div>
+
       <div class="input-group">
         <label for="email">Correo electrónico</label>
         <input id="email" type="email" formControlName="email" placeholder="ejemplo@correo.com" />
@@ -27,7 +39,7 @@
         <a [routerLink]="'/forgot-password'">¿Olvidaste tu contraseña?</a>
       </div>
 
-      <button type="submit" [disabled]="loginForm.invalid">Ingresar</button>
+      <button type="submit" [disabled]="loginForm.invalid" (click)="onSubmit()">Ingresar</button>
 
       <div class="register-text">
         ¿No tienes cuenta? <a [routerLink]="'/register'">Regístrate</a>

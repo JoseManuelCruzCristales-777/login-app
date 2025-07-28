@@ -1,4 +1,4 @@
-<div class="pizarra-page">
+<div class="pizarra-page" [class.read-only-mode]="isReadOnlyMode">
   <header class="navbar">
     <div class="navbar-left">
       <button class="back-btn" (click)="goBack()">← Volver</button>
@@ -68,7 +68,7 @@
         <div class="team-card" *ngFor="let team of teams">
           <div class="team-header">
             <h4>{{ team.name }}</h4>
-            <div class="team-actions">
+            <div class="team-actions" *ngIf="!isReadOnlyMode">
               <button 
                 *ngIf="isUserLeaderOfTeam(team)"
                 class="manage-members-btn"
@@ -111,7 +111,7 @@
           <div 
             class="task-card" 
             *ngFor="let task of getTasksByStatus('todo')"
-            (click)="openTaskModal(task)">
+            (click)="onTaskClick(task)">
             <div class="task-header">
               <h4>{{ task.title }}</h4>
               <span class="progress-badge" [class]="getPriorityClass(task.progress)">
@@ -127,7 +127,7 @@
                 ✏️ {{ getCreatorName(task) }}
               </span>
             </div>
-            <div class="task-actions">
+            <div class="task-actions" *ngIf="!isReadOnlyMode">
               <button 
                 class="move-btn"
                 (click)="updateTaskStatus(task, 'in-progress'); $event.stopPropagation()">
@@ -153,7 +153,7 @@
           <div 
             class="task-card" 
             *ngFor="let task of getTasksByStatus('in-progress')"
-            (click)="openTaskModal(task)">
+            (click)="onTaskClick(task)">
             <div class="task-header">
               <h4>{{ task.title }}</h4>
               <span class="progress-badge" [class]="getPriorityClass(task.progress)">
@@ -169,7 +169,7 @@
                 ✏️ {{ getCreatorName(task) }}
               </span>
             </div>
-            <div class="task-actions">
+            <div class="task-actions" *ngIf="!isReadOnlyMode">
               <button 
                 class="move-btn"
                 (click)="updateTaskStatus(task, 'todo'); $event.stopPropagation()">
@@ -200,7 +200,7 @@
           <div 
             class="task-card completed" 
             *ngFor="let task of getTasksByStatus('done')"
-            (click)="openTaskModal(task)">
+            (click)="onTaskClick(task)">
             <div class="task-header">
               <h4>{{ task.title }}</h4>
               <span class="progress-badge" [class]="getPriorityClass(task.progress)">
@@ -216,7 +216,7 @@
                 ✏️ {{ getCreatorName(task) }}
               </span>
             </div>
-            <div class="task-actions">
+            <div class="task-actions" *ngIf="!isReadOnlyMode">
               <button 
                 class="move-btn"
                 (click)="updateTaskStatus(task, 'in-progress'); $event.stopPropagation()">
@@ -292,20 +292,21 @@
         </div>
         
         <div class="form-group">
-          <label for="team_id">Equipo *</label>
-          <select 
-            id="team_id" 
-            [(ngModel)]="newTask.team_id" 
-            name="team_id"
-            required>
-            <option value="">Selecciona un equipo</option>
-            <option *ngFor="let team of getUserTeams()" [value]="team.id">
-              {{ team.name }}
-            </option>
-          </select>
+          <label for="team_info">Equipo</label>
+          <div class="team-info-display">
+            <span *ngIf="getLeaderTeam()" class="team-name">
+              {{ getLeaderTeam()?.name }} (Como líder)
+            </span>
+            <span *ngIf="!getLeaderTeam()" class="no-team">
+              No eres líder de ningún equipo
+            </span>
+          </div>
+          <small class="form-help">
+            Las tareas se crean desde el equipo donde eres líder
+          </small>
         </div>
 
-        <div class="form-group" *ngIf="newTask.team_id">
+        <div class="form-group">
           <label for="assigned_to">Asignar a *</label>
           <select 
             id="assigned_to" 
@@ -313,8 +314,8 @@
             name="assigned_to"
             required>
             <option value="">Selecciona un usuario</option>
-            <option *ngFor="let user of getTeamUsers(newTask.team_id!)" [value]="user.id">
-              {{ user.first_name }} {{ user.last_name }} ({{ user.pivot.role }})
+            <option *ngFor="let user of getLeaderTeamUsers()" [value]="user.id">
+              {{ user.first_name }} {{ user.last_name }} ({{ user.pivot?.role || 'miembro' }})
             </option>
           </select>
         </div>
@@ -323,7 +324,7 @@
           <button type="button" class="cancel-btn" (click)="closeTaskModal()">
             Cancelar
           </button>
-          <button type="submit" class="save-btn" [disabled]="!newTask.title?.trim() || !newTask.team_id || !newTask.assigned_to">
+          <button type="submit" class="save-btn" [disabled]="!newTask.title?.trim() || !newTask.assigned_to">
             {{ editingTask ? 'Actualizar' : 'Crear' }}
           </button>
         </div>

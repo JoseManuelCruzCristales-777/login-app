@@ -39,14 +39,34 @@ export class TeamService {
     });
   }
 
+  // Helper para crear headers con token de autenticación  
+  private createAuthHeaders(): { [header: string]: string } {
+    const token = localStorage.getItem('token');
+    const headers: { [header: string]: string } = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔐 TeamService - Headers con token agregado');
+    } else {
+      console.log('⚠️ TeamService - No se encontró token de autenticación');
+    }
+    
+    return headers;
+  }
+
   // Obtener todos los equipos donde participa el usuario
   getUserTeams(): Observable<Team[]> {
     const headers = this.getAuthHeaders();
     return this.http.get<Team[]>(`${this.apiUrl}/teams`, { headers });
   }
 
+  // Obtener todos los equipos con autenticación
   getTeams(): Observable<Team[]> {
-    const headers = this.getAuthHeaders();
+    const headers = this.createAuthHeaders();
+    console.log('🌐 TeamService: Obteniendo equipos...');
     return this.http.get<Team[]>(`${this.apiUrl}/teams`, { headers });
   }
 

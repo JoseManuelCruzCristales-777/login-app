@@ -184,7 +184,29 @@ export class WorkspaceListComponent implements OnInit {
   }
 
   enterWorkspace(workspaceId: number): void {
-    this.router.navigate(['/workspace', workspaceId]);
+    console.log('Entrando al workspace:', workspaceId);
+    
+    // Verificar rol del usuario en el workspace
+    const memberWorkspace = this.memberWorkspaces.find(w => w.id === workspaceId);
+    const ownWorkspace = this.ownWorkspaces.find(w => w.id === workspaceId);
+    
+    if (ownWorkspace) {
+      // Es propietario - modo completo
+      console.log('👑 Propietario - Navegando a pizarra completa');
+      this.router.navigate(['/workspace', workspaceId]);
+    } else if (memberWorkspace) {
+      if (memberWorkspace.userRole === 'leader') {
+        // Es líder - modo completo
+        console.log('🏆 Líder - Navegando a pizarra completa');
+        this.router.navigate(['/workspace', workspaceId]);
+      } else {
+        // Es miembro - modo solo lectura
+        console.log('👤 Miembro - Navegando a modo viewer');
+        this.router.navigate(['/workspace-viewer', workspaceId]);
+      }
+    } else {
+      console.error('No se encontró el workspace o no tienes permisos');
+    }
   }
 
   getCreatorName(created_by: any): string {
@@ -294,5 +316,41 @@ Información del Workspace:
 
 ${roleInfo.permissions}
     `);
+  }
+
+  // Método para debuggear token antes de cargar workspaces
+  debugAuthToken(): void {
+    console.log('=== DEBUG TOKEN WORKSPACE-LIST ===');
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    console.log('🔐 Token encontrado:', !!token);
+    console.log('👤 Usuario encontrado:', !!user);
+    
+    if (token) {
+      console.log('🔐 Token preview:', token.substring(0, 30) + '...');
+      console.log('🔐 Token length:', token.length);
+      
+      // Verificar formato básico
+      if (token.includes('|')) {
+        console.log('✅ Token parece tener formato Sanctum correcto');
+      } else {
+        console.log('⚠️ Token no parece tener formato Sanctum');
+      }
+    } else {
+      console.log('❌ No hay token disponible');
+    }
+    
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        console.log('👤 Usuario ID:', userData.id);
+        console.log('👤 Usuario email:', userData.email);
+      } catch (e) {
+        console.log('❌ Error al parsear datos del usuario');
+      }
+    }
+    
+    console.log('===========================');
   }
 }

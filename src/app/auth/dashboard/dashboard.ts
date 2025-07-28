@@ -67,7 +67,7 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.taskService.getUserTasks().subscribe({
+    this.taskService.getTasks().subscribe({
       next: (tasks) => {
         this.myTasks = tasks;
         this.loading = false;

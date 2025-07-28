@@ -58,6 +58,12 @@ export const routes: Routes = [
     path: 'workspace/:id',
     component: PizarraComponent,
     canActivate: [AuthGuard]
+  },
+  // Ruta para workspace viewer (solo lectura)
+  {
+    path: 'workspace-viewer/:id',
+    loadComponent: () => import('./auth/workspace-viewer/workspace-viewer').then(m => m.WorkspaceViewerComponent),
+    canActivate: [AuthGuard]
   }
   // Ejemplo de rutas adicionales:
   // { path: 'workspace/:id', component: WorkspaceDetailComponent, canActivate: [AuthGuard] },

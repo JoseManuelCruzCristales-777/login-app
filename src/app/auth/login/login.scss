@@ -120,6 +120,108 @@ html, body {
         }
       }
     }
+
+    // Estilos para mensajes de error y éxito mejorados
+    .error-message {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      border: 1px solid #f87171;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: slideDown 0.3s ease-out;
+      box-shadow: 0 2px 8px rgba(248, 113, 113, 0.2);
+
+      .error-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .error-text {
+        color: #dc2626;
+        font-weight: 500;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+    }
+
+    .success-message {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 1px solid #34d399;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: slideDown 0.3s ease-out;
+      box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+
+      .success-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .success-text {
+        color: #059669;
+        font-weight: 500;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+    }
+
+    // Animación para los mensajes
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    // Mejorar la transición cuando desaparecen los mensajes
+    .error-message, .success-message {
+      transition: all 0.3s ease-out;
+    }
+
+    // Estilos mejorados para errores de validación de campos
+    .input-group .error {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(248, 113, 113, 0.1);
+      border-radius: 4px;
+      border-left: 3px solid #f87171;
+      
+      span {
+        color: #dc2626;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        &::before {
+          content: "⚠️";
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    // Mejorar el estilo de inputs con error
+    .input-group input.ng-invalid.ng-touched {
+      border-color: #f87171;
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
+      
+      &:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+      }
+    }
   }
 
   .login-right {

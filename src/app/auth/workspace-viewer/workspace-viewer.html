@@ -1,0 +1,116 @@
+<div class="workspace-viewer">
+  <header class="viewer-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">← Volver</button>
+      <h1>📋 Workspace - Modo Lectura</h1>
+    </div>
+    <div class="header-right">
+      <span class="user-info" *ngIf="user">
+        👤 {{ user.first_name }} {{ user.last_name }}
+      </span>
+    </div>
+  </header>
+
+  <main class="viewer-content">
+    <!-- Mensaje de solo lectura -->
+    <div class="readonly-banner">
+      <span class="readonly-icon">👁️</span>
+      <span class="readonly-text">{{ readOnlyMessage }}</span>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      Cargando tus tareas...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <!-- Sin tareas -->
+    <div *ngIf="!loading && !error && tasks.length === 0" class="no-tasks">
+      <div class="no-tasks-icon">📝</div>
+      <h3>No tienes tareas asignadas</h3>
+      <p>Actualmente no hay tareas asignadas a ti en este workspace</p>
+    </div>
+
+    <!-- Kanban Board simplificado -->
+    <div *ngIf="!loading && !error && tasks.length > 0" class="kanban-board">
+      <!-- Columna Pendientes -->
+      <div class="kanban-column">
+        <div class="column-header pending">
+          <h3>📋 Pendientes</h3>
+          <span class="task-count">{{ getTasksByStatus('todo').length }}</span>
+        </div>
+        <div class="tasks-list">
+          <div *ngFor="let task of getTasksByStatus('todo')" class="task-card pending">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+            </div>
+            <p *ngIf="task.description" class="task-description">{{ task.description }}</p>
+            
+            <div class="task-progress">
+              <label>Progreso: {{ task.progress }}%</label>
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                [value]="task.progress"
+                (change)="updateProgress(task, $event)"
+                class="progress-slider">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna En Progreso -->
+      <div class="kanban-column">
+        <div class="column-header in-progress">
+          <h3>⚡ En Progreso</h3>
+          <span class="task-count">{{ getTasksByStatus('in-progress').length }}</span>
+        </div>
+        <div class="tasks-list">
+          <div *ngFor="let task of getTasksByStatus('in-progress')" class="task-card in-progress">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+            </div>
+            <p *ngIf="task.description" class="task-description">{{ task.description }}</p>
+            
+            <div class="task-progress">
+              <label>Progreso: {{ task.progress }}%</label>
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                [value]="task.progress"
+                (change)="updateProgress(task, $event)"
+                class="progress-slider">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Completadas -->
+      <div class="kanban-column">
+        <div class="column-header done">
+          <h3>✅ Completadas</h3>
+          <span class="task-count">{{ getTasksByStatus('done').length }}</span>
+        </div>
+        <div class="tasks-list">
+          <div *ngFor="let task of getTasksByStatus('done')" class="task-card done">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+              <span class="completed-badge">✅</span>
+            </div>
+            <p *ngIf="task.description" class="task-description">{{ task.description }}</p>
+            
+            <div class="task-progress">
+              <span class="progress-complete">Completada ({{ task.progress }}%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,275 @@
+.workspace-viewer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+  }
+  
+  .user-info {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+  }
+}
+
+.viewer-content {
+  padding: 2rem;
+}
+
+.readonly-banner {
+  background: rgba(255, 193, 7, 0.9);
+  color: #856404;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  .readonly-icon {
+    font-size: 1.25rem;
+  }
+  
+  .readonly-text {
+    font-weight: 500;
+  }
+}
+
+.loading, .error-message {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.error-message {
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid rgba(220, 53, 69, 0.4);
+}
+
+.no-tasks {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  
+  .no-tasks-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.5rem;
+  }
+  
+  p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+}
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.kanban-column {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  
+  h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .task-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  &.pending {
+    border-bottom-color: #ffc107;
+  }
+  
+  &.in-progress {
+    border-bottom-color: #17a2b8;
+  }
+  
+  &.done {
+    border-bottom-color: #28a745;
+  }
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.task-card {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid;
+  
+  &.pending {
+    border-left-color: #ffc107;
+  }
+  
+  &.in-progress {
+    border-left-color: #17a2b8;
+  }
+  
+  &.done {
+    border-left-color: #28a745;
+  }
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  
+  h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: #2c3e50;
+    line-height: 1.4;
+  }
+  
+  .completed-badge {
+    font-size: 1.2rem;
+  }
+}
+
+.task-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.task-progress {
+  margin-top: 1rem;
+  
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    background: #e9ecef;
+    cursor: pointer;
+    
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    &::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
+  
+  .progress-complete {
+    color: #28a745;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .viewer-header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .header-left {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.5rem;
+    }
+  }
+  
+  .viewer-content {
+    padding: 1rem;
+  }
+  
+  .kanban-board {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

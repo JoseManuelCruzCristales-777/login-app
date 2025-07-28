@@ -10,7 +10,6 @@
       <input type="text" placeholder="Buscar workspaces..." class="search-bar" />
     </div>
     <div class="navbar-right">
-      <button class="notification-btn">🔔</button>
       <div class="user-menu">
         <img [src]="user?.avatar || 'assets/avatar.svg'" alt="Usuario" class="avatar" />
         <span *ngIf="user" class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
@@ -30,7 +29,7 @@
       
       <div class="action-buttons">
         <button class="refresh-btn" (click)="refresh()">🔄 Actualizar</button>
-        <button class="dashboard-btn" (click)="goToDashboard()">📊 Mi Dashboard</button>
+        <button class="dashboard-btn" (click)="goToDashboard()">📊 Mis Tareas</button>
         <button class="create-btn" (click)="createWorkspace()">+ Crear Workspace</button>
       </div>
     </div>
@@ -116,7 +115,7 @@
               <div class="workspace-title">
                 <h4>{{ workspace.name }}</h4>
                 <span class="role-badge" [class]="workspace.userRole">
-                  {{ workspace.userRole === 'leader' ? '� Líder de Equipo' : '�👤 Miembro de Equipo' }}
+                  {{ workspace.userRole === 'leader' ? '👤 Líder de Equipo' : '👤 Miembro de Equipo' }}
                 </span>
               </div>
               <div class="workspace-status">
@@ -128,30 +127,15 @@
 
             <p class="workspace-description">{{ workspace.description || 'Sin descripción' }}</p>
 
-            <div class="workspace-meta">
-              <div class="workspace-info">
-                <span class="created-date">
-                  <i class="icon">�</i>
-                  Creado: {{ workspace.created_at | date:'short' }}
-                </span>
-                <span class="access-type">
-                  <i class="icon">🔒</i>
-                  Acceso: Solo visualización
-                </span>
-              </div>
-              <div class="workspace-permissions">
-                <small class="permission-note">
-                  • Puedes ver tareas y equipos<br>
-                  • No puedes crear ni editar
-                </small>
-              </div>
-            </div>
+            
 
             <div class="workspace-actions">
               <button 
-                class="enter-btn view-only"
+                class="enter-btn"
+                [class]="workspace.userRole === 'leader' ? 'management' : 'view-only'"
                 (click)="enterWorkspace(workspace.id); $event.stopPropagation()">
-                👀 Ver Workspace
+                <span *ngIf="workspace.userRole === 'leader'">� Gestionar Workspace</span>
+                <span *ngIf="workspace.userRole === 'member'">👀 Ver Mis Tareas</span>
               </button>
               <button 
                 class="info-btn"
