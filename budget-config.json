@@ -1,0 +1,26 @@
+{
+  "projects": {
+    "login-app": {
+      "architect": {
+        "build": {
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle", 
+                  "maximumWarning": "20kb",
+                  "maximumError": "50kb"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
