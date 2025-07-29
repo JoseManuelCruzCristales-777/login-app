@@ -35,16 +35,15 @@
       </div>
       <div class="action-buttons">
         <button 
-          *ngIf="canManageTeams"
+          *ngIf="user && workspace && (workspace.created_by === user.id || !isReadOnlyMode)"
           class="create-team-btn" 
           (click)="openTeamModal()">
           + Crear Equipo
         </button>
         <button 
-          *ngIf="canCreateTasks"
+          *ngIf="user && workspace && (workspace.created_by === user.id || !isReadOnlyMode)"
           class="create-task-btn" 
-          (click)="openTaskModal()"
-          [disabled]="!canCreateTasks">
+          (click)="openTaskModal()">
           + Agregar Tarea
         </button>
         

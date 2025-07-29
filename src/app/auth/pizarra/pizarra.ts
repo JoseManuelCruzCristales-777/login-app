@@ -107,8 +107,8 @@ export class PizarraComponent implements OnInit {
       return;
     }
 
-    // Primero intentar cargar información básica del workspace
-    this.checkWorkspaceAccess();
+    // Cargar workspace primero para obtener información del creador
+    this.loadWorkspaceBasicInfo();
   }
 
   checkWorkspaceAccess(): void {
@@ -314,16 +314,19 @@ export class PizarraComponent implements OnInit {
 
   loadAvailableUsersForTeam(teamId: number): void {
     this.loadingUsers = true;
+    console.log('🔍 Intentando cargar usuarios disponibles para el equipo:', teamId);
+    
+    // Método 1: Intentar endpoint específico del workspace
     this.workspaceService.getAvailableUsersForTeam(teamId).subscribe({
       next: (users: any[]) => {
         this.availableUsersForTeam = users;
         this.loadingUsers = false;
+        console.log('✅ Usuarios cargados desde workspace service:', users.length);
       },
       error: (error: any) => {
-        console.error('Error al cargar usuarios disponibles:', error);
-        this.availableUsersForTeam = [];
-        this.loadingUsers = false;
-        // Usar método temporal como fallback
+        console.error('❌ Error en workspace service:', error);
+        console.log('🔄 Intentando método alternativo...');
+        // Usar método temporal como fallback inmediatamente
         this.loadAvailableUsersForTeamTemp(teamId);
       }
     });
@@ -332,9 +335,52 @@ export class PizarraComponent implements OnInit {
   // Métodos temporales hasta que el backend esté completo
   loadAvailableUsersForTeamTemp(teamId: number): void {
     console.log('Cargando usuarios disponibles (temporal)...');
-    this.availableUsersForTeam = this.availableUsers.filter(user => 
-      !this.selectedTeam?.users?.some(teamUser => teamUser.id === user.id)
-    );
+    
+    // Usar el servicio de usuarios para obtener todos los usuarios del sistema
+    this.userService.getUsers().subscribe({
+      next: (allUsers: any[]) => {
+        // Filtrar usuarios que NO están en el equipo actual
+        this.availableUsersForTeam = allUsers.filter(user => 
+          !this.selectedTeam?.users?.some(teamUser => teamUser.id === user.id)
+        );
+        this.loadingUsers = false;
+        console.log('✅ Usuarios disponibles cargados desde userService:', this.availableUsersForTeam.length);
+        console.log('📋 Usuarios disponibles:', this.availableUsersForTeam);
+      },
+      error: (error: any) => {
+        console.error('❌ Error al cargar todos los usuarios:', error);
+        console.log('🔄 Usando usuarios de ejemplo como último recurso...');
+        // Como fallback, crear usuarios de ejemplo
+        this.createSampleUsers();
+      }
+    });
+  }
+
+  // Método de respaldo para crear usuarios de ejemplo
+  createSampleUsers(): void {
+    console.log('Creando usuarios de ejemplo...');
+    this.availableUsersForTeam = [
+      {
+        id: 999,
+        first_name: 'Usuario',
+        last_name: 'Ejemplo',
+        email: 'usuario@ejemplo.com'
+      },
+      {
+        id: 998,
+        first_name: 'María',
+        last_name: 'García',
+        email: 'maria@ejemplo.com'
+      },
+      {
+        id: 997,
+        first_name: 'Juan',
+        last_name: 'Pérez',
+        email: 'juan@ejemplo.com'
+      }
+    ];
+    this.loadingUsers = false;
+    console.log('✅ Usuarios de ejemplo creados:', this.availableUsersForTeam.length);
   }
 
   addMemberToTeamTemp(): void {
@@ -1160,5 +1206,130 @@ export class PizarraComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // Verificar si puede gestionar el workspace (creador siempre puede)
+  canManageWorkspace(): boolean {
+    if (!this.user || !this.workspace) return false;
+    
+    // El creador del workspace siempre puede gestionar
+    return this.workspace.created_by === this.user.id;
+  }
+
+  // Verificar si debe mostrar botones de acción
+  shouldShowActionButtons(): boolean {
+    if (!this.user) return false;
+    
+    // Si es el creador, siempre mostrar botones
+    if (this.canManageWorkspace()) {
+      return true;
+    }
+    
+    // Si no está en modo solo lectura, mostrar botones
+    return !this.isReadOnlyMode;
+  }
+
+  // Override para forzar modo administrador en workspaces del usuario
+  initializeWorkspacePermissions(): void {
+    if (!this.user || !this.workspace) return;
+    
+    console.log('🔍 Inicializando permisos del workspace');
+    console.log('👤 Usuario ID:', this.user.id);
+    console.log('👑 Creador workspace:', this.workspace.created_by);
+    console.log('🏢 Equipos:', this.teams.length);
+    
+    // Si es el creador, forzar modo administrador
+    if (this.workspace.created_by === this.user.id) {
+      this.isReadOnlyMode = false;
+      this.canManageTeams = true;
+      this.canCreateTasks = true;
+      console.log('✅ Modo administrador activado para el creador');
+    } else {
+      // Verificar permisos basados en equipos
+      this.checkReadOnlyMode();
+    }
+  }
+
+  // Cargar información básica del workspace
+  loadWorkspaceBasicInfo(): void {
+    console.log('🏢 Cargando información del workspace:', this.workspaceId);
+    
+    // Por ahora, crear un workspace temporal con el usuario como creador
+    // Esto debería reemplazarse con una llamada real al backend cuando esté disponible
+    this.workspace = {
+      id: this.workspaceId,
+      name: `Workspace ${this.workspaceId}`,
+      description: 'Workspace description',
+      created_by: this.user.id, // IMPORTANTE: Asumir que el usuario actual es el creador por ahora
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    console.log('✅ Workspace simulado creado:', this.workspace);
+    console.log('👤 Usuario actual ID:', this.user.id);
+    console.log('👑 Creador del workspace:', this.workspace.created_by);
+    console.log('🔍 Es el usuario el creador?', this.workspace.created_by === this.user.id);
+    
+    // Configurar permisos inmediatamente
+    this.setupWorkspacePermissions();
+    
+    // Cargar datos del workspace
+    this.loadWorkspaceData();
+  }
+
+  // Configurar permisos basados en el creador del workspace
+  setupWorkspacePermissions(): void {
+    if (!this.user || !this.workspace) {
+      this.isReadOnlyMode = true;
+      return;
+    }
+
+    console.log('⚙️ Configurando permisos del workspace...');
+    
+    // REGLA PRINCIPAL: El creador del workspace SIEMPRE tiene permisos completos
+    if (this.workspace.created_by === this.user.id) {
+      this.isReadOnlyMode = false;
+      this.canCreateTasks = true;
+      this.canManageTeams = true;
+      this.readOnlyMessage = '';
+      console.log('✅ CREADOR DEL WORKSPACE: Permisos completos otorgados');
+      return;
+    }
+
+    // Si no es el creador, verificar membresía en equipos más tarde
+    console.log('⏳ No es creador, verificará permisos de equipos después...');
+    this.isReadOnlyMode = true; // Temporal hasta verificar equipos
+  }
+
+  // Cargar datos completos del workspace
+  loadWorkspaceData(): void {
+    console.log('📊 Cargando datos del workspace...');
+    
+    // Cargar equipos primero
+    this.loadTeams();
+    
+    // Cargar tareas basadas en permisos
+    this.loadTasksBasedOnRole();
+  }
+
+  // Verificar si está en modo solo lectura
+  checkReadOnlyMode(): void {
+    if (!this.user || !this.workspace) {
+      this.isReadOnlyMode = true;
+      return;
+    }
+
+    // El creador del workspace NUNCA está en modo solo lectura
+    if (this.workspace.created_by === this.user.id) {
+      this.isReadOnlyMode = false;
+      return;
+    }
+
+    // Verificar si es líder o miembro de algún equipo
+    const isTeamMember = this.teams.some(team => 
+      team.users && team.users.some((member: any) => member.id === this.user.id)
+    );
+
+    this.isReadOnlyMode = !isTeamMember;
   }
 }

@@ -228,4 +228,65 @@ export class DashboardComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  // Verificar permisos simplificados para workspaces nuevos
+  canManageWorkspace(workspace: any): boolean {
+    if (!this.user) return false;
+    
+    // El creador siempre puede gestionar el workspace
+    return workspace.created_by === this.user.id;
+  }
+
+  // Verificar si puede agregar equipos (siempre true para el creador)
+  canAddTeamToWorkspace(workspace: any): boolean {
+    return this.canManageWorkspace(workspace);
+  }
+
+  // Verificar si puede agregar tareas (true para creador, incluso sin equipos)
+  canAddTaskToWorkspace(workspace: any): boolean {
+    if (!this.user) return false;
+    
+    // El creador puede agregar tareas incluso sin equipos
+    if (workspace.created_by === this.user.id) {
+      return true;
+    }
+    
+    // Miembros de equipos también pueden agregar tareas
+    if (workspace.teams && workspace.teams.length > 0) {
+      return workspace.teams.some((team: any) => 
+        team.members && team.members.some((member: any) => member.id === this.user?.id)
+      );
+    }
+    
+    return false;
+  }
+
+  // Método de debug para workspaces nuevos
+  debugWorkspacePermissions(workspace: any): void {
+    console.log('🔍 Debug Workspace:', workspace.name);
+    console.log('👤 Usuario actual:', this.user?.id);
+    console.log('👑 Creador workspace:', workspace.created_by);
+    console.log('🏢 Equipos:', workspace.teams?.length || 0);
+    console.log('✅ Puede agregar equipos:', this.canAddTeamToWorkspace(workspace));
+    console.log('✅ Puede agregar tareas:', this.canAddTaskToWorkspace(workspace));
+    console.log('📊 Workspace completo:', workspace);
+  }
+
+  // Método temporal para mostrar siempre los botones en workspaces nuevos
+  showWorkspaceButtons(workspace: any): boolean {
+    if (!this.user) return false;
+    
+    // Si es el creador, siempre mostrar botones
+    if (workspace.created_by === this.user.id) {
+      return true;
+    }
+    
+    // Debug para workspaces problemáticos
+    if (!workspace.teams || workspace.teams.length === 0) {
+      console.log('⚠️ Workspace sin equipos:', workspace.name);
+      this.debugWorkspacePermissions(workspace);
+    }
+    
+    return workspace.created_by === this.user.id;
+  }
 }
